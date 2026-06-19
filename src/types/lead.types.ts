@@ -1,0 +1,55 @@
+export interface ILead {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  social: string;
+  hasOrderedToday?: boolean;
+  assignedBy: {
+    name: string;
+    role: string;
+    email: string;
+  };
+  fraudProfile: {
+    totalOrders: number;
+    deliveredOrders: number;
+    cancelledOrders: number;
+    successRate: number;
+    cancelRate: number;
+    risk: "SAFE" | "MEDIUM" | "HIGH" | "FAKE";
+    isFakeCustomer: boolean;
+  };
+  status?: string;
+  priority?: string;
+  notes?: string;
+  createdAt: Date;
+  updatedAt?: Date;
+}
+
+export type LeadInput = {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  social: string;
+  notes?: string;
+};
+
+export interface ILeadResponse {
+  _id?: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  social: string;
+  status: string;
+  priority: string;
+  assignedBy: string;
+  createdAt: Date;
+  updatedAt?: Date;
+}
+
+export interface ILeadApiResponse {
+  data: ILead;
+}
