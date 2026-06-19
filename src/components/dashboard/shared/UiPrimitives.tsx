@@ -5,7 +5,7 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { LucideIcon, AlertCircle, SearchX } from "lucide-react";
-import { IsActive, PlanStatus, Role } from "@/types";
+import { IsActive, PlanStatus, Role } from "@/types/index";
 import { Button } from "@/components/ui/button";
 
 const ROLE_STYLES: Record<Role, string> = {
