@@ -1,5 +1,6 @@
+import { GetQueryParams, IResponse } from "@/types";
 import { baseApi } from "../baseApi";
-import { IResponse, GetQueryParams, IPlan } from "@/types";
+import { IPlan } from "@/types/plan";
 
 export const planApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({

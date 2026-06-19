@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Role, PlanStatus } from "../types/index";
+import { Role, PlanStatus } from "../types/plan";
 
 export const createPlanSchema = z.object({
   name: z.string().min(2, "Plan name must be at least 2 characters"),

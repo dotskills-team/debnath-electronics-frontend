@@ -76,7 +76,7 @@ import {
   useRegisterMutation,
   useUpdateUserMutation,
 } from "@/redux/features/user/user.api";
-import { IUser, IPlan, Role, IsActive } from "@/types/index";
+import { IUser, IPlan, Role, IsActive } from "@/types/plan";
 import {
   createUserSchema,
   updateUserSchema,

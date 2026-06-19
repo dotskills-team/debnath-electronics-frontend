@@ -47,7 +47,7 @@ import {
   useDeletePlanMutation,
   useGetAllPlansQuery,
 } from "@/redux/features/plan/plan.api";
-import { IPlan, PlanStatus } from "@/types/index";
+import { IPlan, PlanStatus } from "@/types/plan";
 import { createPlanSchema, CreatePlanFormValues } from "@/utils/plan-schema";
 import {
   PlanStatusBadge,

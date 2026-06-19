@@ -31,7 +31,7 @@ import {
   RoleBadge,
   SubscriptionBadge,
 } from "@/components/dashboard/shared/UiPrimitives";
-import { IUser, IPlan } from "@/types";
+import { IUser, IPlan } from "@/types/plan";
 
 function StatsSection() {
   const { data: subStats, isLoading: subLoading } =
