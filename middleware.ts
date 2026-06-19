@@ -13,7 +13,7 @@ enum UserRole {
 }
 
 const roleRoutes: Record<string, UserRole[]> = {
-  "/staff/dashboard/super-admin": [UserRole.SUPER_ADMIN],
+  "/staff/dashboard/superadmin": [UserRole.SUPER_ADMIN],
   "/staff/dashboard/admin": [UserRole.ADMIN],
 
   "/staff/dashboard/admin/users-management": [UserRole.ADMIN],
@@ -68,7 +68,7 @@ function getDashboardRoute(role: UserRole) {
       return "/staff/dashboard/admin";
 
     case UserRole.SUPER_ADMIN:
-      return "/staff/dashboard/super-admin";
+      return "/staff/dashboard/superadmin";
 
     case UserRole.MANAGER:
       return "/staff/dashboard/orders";

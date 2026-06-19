@@ -33,7 +33,7 @@ export function ProfileDropdown() {
   const handleLogout = async () => {
     await logout();
     toast.success("Logout successful")
-    router.push("/")
+    router.push("/login")
 
   }
 

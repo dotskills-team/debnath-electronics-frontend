@@ -1,6 +1,7 @@
 // export type UserRole = "ADMIN" | "EDITOR";
 export type UserRole =
   | "ADMIN"
+  | "SUPER_ADMIN"
   | "MANAGER"
   | "MODERATOR"
   | "TELLICELSS"
@@ -12,10 +13,14 @@ export type RouteConfig = {
   patterns: RegExp[];
 };
 
-
 export const customerRoutes: RouteConfig = {
   exact: ["/customer/dashboard"],
   patterns: [/^\/customer\/dashboard/],
+};
+
+export const superAdminRoutes: RouteConfig = {
+  exact: ["/staff/dashboard/superadmin"],
+  patterns: [/^\/staff\/dashboard\/superadmin/],
 };
 
 export const staffRoutes: RouteConfig = {
@@ -38,25 +43,25 @@ export const ownerRoutes: RouteConfig = {
   patterns: [/^\/staff\/dashboard\/owner/],
 };
 
-
 export const isRouteMatches = (
   pathname: string,
-  routes: RouteConfig
+  routes: RouteConfig,
 ): boolean => {
   if (routes.exact.includes(pathname)) return true;
   return routes.patterns.some((pattern) => pattern.test(pathname));
 };
 
-export const getRouteOwner = (
-  pathname: string
-): UserRole | "STAFF" | null => {
+export const getRouteOwner = (pathname: string): UserRole | "STAFF" | null => {
+  if (isRouteMatches(pathname, superAdminRoutes)) {
+    return "SUPER_ADMIN";
+  }
 
   if (isRouteMatches(pathname, ownerRoutes)) {
     return "ADMIN";
   }
 
   if (isRouteMatches(pathname, staffRoutes)) {
-    return "STAFF"; 
+    return "STAFF";
   }
 
   if (isRouteMatches(pathname, userRoutes)) {
@@ -68,11 +73,15 @@ export const getRouteOwner = (
 
 export const isValidRouteForRole = (
   pathname: string,
-  role: UserRole
+  role: UserRole,
 ): boolean => {
   // Public
   if (!pathname.startsWith("/staff") && !pathname.startsWith("/customer")) {
     return true;
+  }
+
+  if (pathname.startsWith("/staff/dashboard/superadmin")) {
+    return role === "SUPER_ADMIN";
   }
 
   // Customer
@@ -87,15 +96,23 @@ export const isValidRouteForRole = (
 
   // Staff access
   if (pathname.startsWith("/staff/dashboard")) {
-    return ["ADMIN", "MANAGER", "MODERATOR", "TELLICELSS", "GENERALSTAFF"].includes(role);
+    return [
+      "ADMIN",
+      "MANAGER",
+      "MODERATOR",
+      "TELLICELSS",
+      "GENERALSTAFF",
+    ].includes(role);
   }
 
   return false;
 };
 
-
 export const getDefaultDashboardRoute = (role: UserRole): string => {
   switch (role) {
+     case "SUPER_ADMIN":
+      return "/staff/dashboard/superadmin";
+
     case "CUSTOMER":
       return "/customer/dashboard/my-orders";
     case "TELLICELSS":
