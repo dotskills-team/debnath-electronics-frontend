@@ -15,7 +15,6 @@ export type PageAccess =
   | "customer-management"
   | "my-customers"
   | "orders-management"
-  | "leads"
   | "pos"
   | "courier-settings";
 
@@ -49,7 +48,6 @@ export const defaultRolePermissions: Record<UserRole, PageAccess[]> = {
     "customer-management",
     "my-customers",
     "orders-management",
-    "leads",
     "my-orders",
     "pos",
     "courier-settings",
@@ -60,7 +58,6 @@ export const defaultRolePermissions: Record<UserRole, PageAccess[]> = {
     "category-management",
     "coupons",
     "orders-management",
-    "leads",
     "my-orders",
     "pos",
   ],
@@ -70,11 +67,10 @@ export const defaultRolePermissions: Record<UserRole, PageAccess[]> = {
     "category-management",
     "coupons",
     "orders-management",
-    "leads",
     "my-orders",
     "pos",
   ],
-  MODERATOR: ["dashboard", "product-management", "my-orders", "leads"],
+  MODERATOR: ["dashboard", "product-management", "my-orders"],
   CUSTOMER: ["dashboard", "my-orders"],
 };
 
@@ -92,13 +88,22 @@ export const availablePages: { id: PageAccess; label: string; icon: string }[] =
     { id: "customer-management", label: "Customers", icon: "👤" },
     { id: "my-customers", label: "My Customers", icon: "💼" },
     { id: "orders-management", label: "Orders", icon: "📦" },
-    { id: "leads", label: "Leads", icon: "🎯" },
     { id: "my-orders", label: "My Orders", icon: "📋" },
     { id: "pos", label: "POS", icon: "🛒" },
 
     { id: "user-management", label: "User Management", icon: "🔐" },
     { id: "courier-settings", label: "Courier Settings", icon: "🧰" },
   ];
+
+export const superadminAvailablePages: {
+  id: PageAccess;
+  label: string;
+  icon: string;
+}[] = [
+  { id: "superadmin", label: "Overview", icon: "📊" },
+  { id: "users", label: "Users", icon: "👤" },
+  { id: "plans", label: "Plans", icon: "🛍️" },
+];
 
 export const hasPageAccess = (
   userPermissions: PageAccess[],

@@ -17,7 +17,6 @@ export const moderatorSidebar = [
         url: "/staff/dashboard",
         icon: LayoutDashboardIcon,
       },
-      { title: "Leads", url: "/staff/dashboard/leads", icon: ListOrdered },
       {
         title: "My Customers",
         url: "/staff/dashboard/my-customers",
@@ -93,7 +92,6 @@ export const adminSidebar = [
         icon: ListOrdered,
       },
       // { title: "My Orders", url: "/staff/dashboard/my-orders", icon: ListOrdered },
-      { title: "Leads", url: "/staff/dashboard/leads", icon: ListOrdered },
       {
         title: "My Orders",
         url: "/staff/dashboard/my-orders",
@@ -134,7 +132,6 @@ export const telecallerSidebar = [
         icon: Users,
       },
       { title: "POS", url: "/staff/dashboard/pos", icon: StoreIcon },
-      { title: "Leads", url: "/staff/dashboard/leads", icon: ListOrdered },
     ],
   },
 ];
@@ -183,7 +180,6 @@ export const managerSidebar = [
         url: "/staff/dashboard/my-customers",
         icon: Users,
       },
-      { title: "Leads", url: "/staff/dashboard/leads", icon: ListOrdered },
       { title: "POS", url: "/staff/dashboard/pos", icon: StoreIcon },
       // { title: "My Orders", url: "/staff/dashboard/my-orders", icon: ListOrdered },
     ],

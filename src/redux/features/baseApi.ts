@@ -21,8 +21,6 @@ export const baseApi = createApi({
     "COURIER_SETTING",
     "RETURN",
     "CATEGORY",
-    "LEADS",
-    "LEAD",
     "PRODUCTS",
     "PRODUCT",
     "ORDERS",

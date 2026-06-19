@@ -125,7 +125,13 @@ function RecentUsers() {
     limit: 5,
     sort: "-createdAt",
   });
-  const users: IUser[] = (data?.data as any) ?? [];
+
+const rawData = data?.data;
+const users: IUser[] = Array.isArray(rawData)
+  ? rawData
+  : Array.isArray((rawData as any)?.items)
+    ? (rawData as any).items
+    : [];
 
   if (isLoading) {
     return (
@@ -178,7 +184,12 @@ function RecentUsers() {
 
 function ExpiringSoon() {
   const { data, isLoading } = useGetExpiringSoonSubscriptionsQuery();
-  const users: IUser[] = (data?.data as any) ?? [];
+  const rawData = data?.data;
+const users: IUser[] = Array.isArray(rawData)
+  ? rawData
+  : Array.isArray((rawData as any)?.items)
+    ? (rawData as any).items
+    : [];
 
   if (isLoading) {
     return (
@@ -339,7 +350,7 @@ export function SuperAdminDashboard() {
           title="Recent Users"
           icon={Users}
           accentClass="bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400"
-          href="/dashboard/super-admin/users"
+          href="/staff/dashboard/superadmin/users"
         >
           <RecentUsers />
         </DashboardPanel>
@@ -348,7 +359,7 @@ export function SuperAdminDashboard() {
           title="Expiring Soon"
           icon={Clock}
           accentClass="bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400"
-          href="/dashboard/super-admin/subscriptions"
+          href="/staff/dashboard/superadmin/subscriptions"
         >
           <ExpiringSoon />
         </DashboardPanel>
@@ -357,7 +368,7 @@ export function SuperAdminDashboard() {
           title="Active Plans"
           icon={Package}
           accentClass="bg-violet-50 text-violet-600 dark:bg-violet-900/20 dark:text-violet-400"
-          href="/dashboard/super-admin/plans"
+          href="/staff/dashboard/superadmin/plans"
         >
           <PlansOverview />
         </DashboardPanel>
@@ -367,19 +378,19 @@ export function SuperAdminDashboard() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
           {
-            href: "/dashboard/super-admin/users",
+            href: "/staff/dashboard/superadmin/users",
             label: "Manage Users",
             icon: Users,
             color: "amber",
           },
           {
-            href: "/dashboard/super-admin/subscriptions",
+            href: "/staff/dashboard/superadmin/subscriptions",
             label: "Manage Subscriptions",
             icon: CreditCard,
             color: "emerald",
           },
           {
-            href: "/dashboard/super-admin/plans",
+            href: "/staff/dashboard/superadmin/plans",
             label: "Manage Plans",
             icon: Package,
             color: "violet",

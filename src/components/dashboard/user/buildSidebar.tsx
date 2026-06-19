@@ -5,6 +5,7 @@ import {
   type UserRole,
   defaultRolePermissions,
   availablePages,
+  superadminAvailablePages,
 } from "@/lib/permissions";
 import {
   LayoutDashboard,
@@ -53,18 +54,15 @@ const iconMap: Record<PageAccess, React.ReactNode> = {
   "brand-management": <Tag className="h-5 w-5" />,
 
   coupons: <Ticket className="h-5 w-5" />,
-  leads: <Target className="h-5 w-5" />,
   pos: <Store className="h-5 w-5" />,
   "courier-settings": <Settings className="h-5 w-5" />,
 };
 
 const pageHrefMap: Record<any, string> = {
   dashboard: "/staff/dashboard",
-   superadmin: "/staff/dashboard/superadmin",
-  "users":
-    "/staff/dashboard/super-admin/users",
-  "plans":
-    "/dashboard/super-admin/plans",
+  superadmin: "/staff/dashboard/superadmin",
+  users: "/staff/dashboard/superadmin/users",
+  plans: "/staff/dashboard/superadmin/plans",
   "product-management": "/staff/dashboard/admin/product-management",
   "category-management": "/staff/dashboard/admin/category-management",
   "brand-management": "/staff/dashboard/admin/brand-management",
@@ -75,7 +73,6 @@ const pageHrefMap: Record<any, string> = {
   "customer-management": "/staff/dashboard/admin/customer-management",
   "my-customers": "/staff/dashboard/my-customers",
   "orders-management": "/staff/dashboard/orders-management",
-  leads: "/staff/dashboard/leads",
   "my-orders": "/staff/dashboard/my-orders",
   pos: "/staff/dashboard/pos",
   "courier-settings": "/staff/dashboard/admin/courier-settings",
@@ -86,14 +83,21 @@ export const buildSidebarItems = (
   customPermissions?: PageAccess[],
 ): SidebarItem[] => {
   const permittedPages =
-    userRole === "ADMIN"
-      ? availablePages.map((p) => p.id)
-      : customPermissions?.length
-        ? customPermissions
-        : defaultRolePermissions[userRole];
+    userRole === "SUPER_ADMIN"
+      ? superadminAvailablePages.map((p) => p.id)
+      : userRole === "ADMIN"
+        ? availablePages.map((p) => p.id)
+        : customPermissions?.length
+          ? customPermissions
+          : defaultRolePermissions[userRole];
 
   const sections: Record<string, PageAccess[]> = {
     core: ["dashboard"],
+    superadmin: [
+    "superadmin",
+    "users",
+    "plans",
+  ],
     management: [
       "product-management",
       "purchase-products",
@@ -107,7 +111,6 @@ export const buildSidebarItems = (
     ],
     operations: [
       "orders-management",
-      "leads",
       "my-orders",
       "pos",
       "courier-settings",
@@ -121,7 +124,13 @@ export const buildSidebarItems = (
   Object.entries(sections).forEach(([_section, pageIds]) => {
     pageIds.forEach((pageId) => {
       if (permittedPages.includes(pageId)) {
-        const page = availablePages.find((p) => p.id === pageId);
+        const allPages =
+          userRole === "SUPER_ADMIN"
+            ? superadminAvailablePages
+            : availablePages;
+
+        const page = allPages.find((p) => p.id === pageId);
+
         if (page) {
           sidebarItems.push({
             id: page.id,
