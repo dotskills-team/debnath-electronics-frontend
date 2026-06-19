@@ -11,7 +11,7 @@ import { toast } from 'sonner'
 import { loginUser } from '@/utils/loginUser'
 import { useUser } from '@/context/UserContext'
 import { useRouter } from 'next/navigation'
-import logo from "../../../public/assets/FRN-Logo-scaled.webp"
+import logo from "../../../public/assets/debnath-electronics-logo.jpeg"
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
