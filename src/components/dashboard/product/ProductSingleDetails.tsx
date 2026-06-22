@@ -74,37 +74,61 @@ function useBarcodeActions(barcodeValue: string | undefined) {
     }
 
     printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Barcode — ${barcodeValue}</title>
-          <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body {
-              display: flex; flex-direction: column;
-              align-items: center; justify-content: center;
-              min-height: 100vh; font-family: monospace;
-              background: #fff;
-            }
-            .label {
-              font-size: 11px; color: #555; margin-bottom: 8px;
-              letter-spacing: 0.05em; text-transform: uppercase;
-            }
-            svg { max-width: 280px; }
-            @media print {
-              body { min-height: unset; padding: 20mm; }
-            }
-          </style>
-        </head>
-        <body>
-          <p class="label">Debnath Electronics</p>
-          ${svgData}
-          <script>
-            window.onload = () => { window.print(); window.close(); }
-          <\/script>
-        </body>
-      </html>
-    `);
+<!DOCTYPE html>
+<html>
+<head>
+<title>${barcodeValue}</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+html,body{
+  width:190px;
+  margin: 0 auto;
+  background:#fff;
+  overflow:hidden;
+}
+
+.barcode-wrapper{
+  width:190px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:4px;
+}
+
+.barcode-wrapper svg{
+  width:190px !important;
+  height:88px !important;
+}
+
+@page{
+  margin:0;
+  size:auto;
+}
+
+</style>
+</head>
+
+<body>
+  <div class="barcode-wrapper">
+    ${svgData}
+  </div>
+
+  <script>
+    window.onload = function(){
+      window.print();
+      window.close();
+    }
+  <\/script>
+</body>
+</html>
+`);
     printWindow.document.close();
   }, [barcodeValue]);
 
@@ -116,10 +140,11 @@ function useBarcodeActions(barcodeValue: string | undefined) {
 
     // Convert SVG → canvas → PNG download
     const canvas = document.createElement("canvas");
-    const bbox = svgEl.getBoundingClientRect();
+    const targetWidth = 190;
+    const targetHeight = 110;
     const scale = 3; // 3× for crisp print quality
-    canvas.width = bbox.width * scale;
-    canvas.height = bbox.height * scale;
+    canvas.width = targetWidth * scale;
+    canvas.height = targetHeight * scale;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -134,7 +159,7 @@ function useBarcodeActions(barcodeValue: string | undefined) {
     const img = new Image();
     img.onload = () => {
       ctx.scale(scale, scale);
-      ctx.drawImage(img, 0, 0, bbox.width, bbox.height);
+      ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
       URL.revokeObjectURL(url);
 
       const pngUrl = canvas.toDataURL("image/png");
@@ -177,7 +202,7 @@ export default function ProductSingleDetails() {
       toast.error(err?.data?.message || "Failed to generate barcode");
     }
   };
-  
+
   const handleOpenPOS = () => {
     router.push(
       `/staff/dashboard/pos?barcode=${encodeURIComponent(product?.barcode ?? "")}`,
@@ -377,14 +402,23 @@ export default function ProductSingleDetails() {
                     {/* Barcode display */}
                     <div
                       ref={barcodeRef}
-                      className="flex justify-center rounded-xl border border-gray-100 dark:border-gray-700 bg-white p-4"
+                      className="flex justify-center items-center bg-white"
+                      style={{
+                        width: "190px",
+                        minWidth: "190px",
+                        maxWidth: "190px",
+                        height: "88px",
+                        margin: "0 auto",
+                      }}
                     >
                       <Barcode
                         value={product.barcode}
                         format="CODE128"
-                        width={4}
-                        height={80}
+                        width={2}
+                        height={88}
                         displayValue
+                        margin={0}
+                        fontSize={14}
                       />
                     </div>
 

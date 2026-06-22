@@ -24,7 +24,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
 // import logo from "../../../../public/assets/FRN-Logo-scaled.webp";
-import { registerUser } from "@/utils/registerUser";
 import { Separator } from "@/components/ui/separator";
 import {
   Select,
@@ -33,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useRegisterMutation } from "@/redux/features/user/user.api";
 
 enum Role {
   ADMIN = "ADMIN",
@@ -41,8 +41,6 @@ enum Role {
   TELLICELSS = "TELLICELSS",
   GENERALSTAFF = "GENERALSTAFF",
 }
-
-// ─── Schema ───────────────────────────────────────────────────────────────────
 
 const signupSchema = z
   .object({
@@ -80,8 +78,6 @@ const signupSchema = z
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
-// ─── Password Field Helper ────────────────────────────────────────────────────
-
 function PasswordField({
   id,
   placeholder,
@@ -115,13 +111,12 @@ function PasswordField({
   );
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export default function RegisterModal({ refetch }: any) {
   const [open, setOpen] = useState(false);
   const [pictureFile, setPictureFile] = useState<File | null>(null);
   const [picturePreview, setPicturePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [registerUserMutation] = useRegisterMutation();
 
   const {
     register: registerField,
@@ -192,12 +187,14 @@ export default function RegisterModal({ refetch }: any) {
         formData.append("picture", pictureFile);
       }
 
-      const res = await registerUser(formData);
+      const res = await registerUserMutation(formData).unwrap();
       //   console.log("Register res", res);
-      if (res) {
+      if (res.success) {
         toast.success("Account created successfully!");
         handleClose();
         refetch();
+      }else{
+        toast.error(res.message || "Failed to account register!");
       }
     } catch (error) {
       console.error(error);

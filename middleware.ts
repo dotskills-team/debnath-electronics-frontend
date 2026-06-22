@@ -70,8 +70,8 @@ function getDashboardRoute(role: UserRole) {
     case UserRole.SUPER_ADMIN:
       return "/staff/dashboard/superadmin";
 
-    case UserRole.MANAGER:
-      return "/staff/dashboard/orders";
+  case UserRole.MANAGER:
+  return "/staff/dashboard/orders-management";
 
     case UserRole.MODERATOR:
     case UserRole.TELLICELSS:
@@ -139,6 +139,7 @@ async function verifyToken(token: string) {
 
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
+  const isHomeRoute = pathname === "/";
 
   const accessToken = req.cookies.get("accessToken")?.value;
 
@@ -147,15 +148,17 @@ export async function middleware(req: NextRequest) {
   const isLoginRoute = pathname === "/login";
 
   // Logged in user trying login page
-  if (accessToken && isLoginRoute) {
-    const payload: any = await verifyToken(accessToken);
+if (accessToken && (isLoginRoute || isHomeRoute)) {
+  const payload: any = await verifyToken(accessToken);
 
-    if (payload?.role) {
-      return NextResponse.redirect(
-        new URL(getDashboardRoute(payload.role), req.url),
-      );
-    }
+  const role = payload?.role || payload?.user?.role;
+
+  if (role) {
+    return NextResponse.redirect(
+      new URL(getDashboardRoute(role), req.url)
+    );
   }
+}
 
   // Dashboard protection
   if (isDashboardRoute) {
@@ -196,5 +199,9 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/staff/dashboard/:path*", "/login"],
+  matcher: [
+    "/",
+    "/login",
+    "/staff/dashboard/:path*",
+  ],
 };
