@@ -66,7 +66,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
             width={500}
             height={500}
             quality={90}
-            className="w-full h-16 rounded-md"
+            className="w-36 mx-auto h-20 rounded-md"
             priority
           />
         </Link>
