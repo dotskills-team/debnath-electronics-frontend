@@ -87,14 +87,14 @@ function useBarcodeActions(barcodeValue: string | undefined) {
 }
 
 html,body{
-  width:190px;
+  width:320px;
   margin: 0 auto;
   background:#fff;
   overflow:hidden;
 }
 
 .barcode-wrapper{
-  width:190px;
+  width:320px;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -103,8 +103,8 @@ html,body{
 }
 
 .barcode-wrapper svg{
-  width:190px !important;
-  height:88px !important;
+  width:320px !important;
+  height:100px !important;
 }
 
 @page{
@@ -404,18 +404,18 @@ export default function ProductSingleDetails() {
                       ref={barcodeRef}
                       className="flex justify-center items-center bg-white"
                       style={{
-                        width: "190px",
-                        minWidth: "190px",
-                        maxWidth: "190px",
-                        height: "88px",
+                        width: "320px",
+                        minWidth: "320px",
+                        maxWidth: "320px",
+                        height: "100px",
                         margin: "0 auto",
                       }}
                     >
                       <Barcode
                         value={product.barcode}
                         format="CODE128"
-                        width={2}
-                        height={88}
+                        width={1.2}
+                        height={100}
                         displayValue
                         margin={0}
                         fontSize={14}
