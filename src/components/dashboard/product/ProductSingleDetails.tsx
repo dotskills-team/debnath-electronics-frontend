@@ -60,68 +60,142 @@ function useBarcodeActions(barcodeValue: string | undefined) {
     }
   }, [barcodeValue]);
 
-  const printBarcode = useCallback(() => {
-    if (!barcodeValue || !barcodeRef.current) return;
+//   const printBarcode = useCallback(() => {
+//     if (!barcodeValue || !barcodeRef.current) return;
 
-    const svgEl = barcodeRef.current.querySelector("svg");
-    if (!svgEl) return;
+//     const svgEl = barcodeRef.current.querySelector("svg");
+//     if (!svgEl) return;
 
-    const svgData = new XMLSerializer().serializeToString(svgEl);
-    const printWindow = window.open("", "_blank", "width=500,height=400");
-    if (!printWindow) {
-      toast.error("Allow popups to print the barcode");
-      return;
-    }
+//     const svgData = new XMLSerializer().serializeToString(svgEl);
+//     const printWindow = window.open("", "_blank", "width=500,height=400");
+//     if (!printWindow) {
+//       toast.error("Allow popups to print the barcode");
+//       return;
+//     }
 
-    printWindow.document.write(`
+//     printWindow.document.write(`
+// <!DOCTYPE html>
+// <html>
+// <head>
+// <title>${barcodeValue}</title>
+
+// <style>
+// *{
+//   margin:0;
+//   padding:0;
+//   box-sizing:border-box;
+// }
+
+// html,body{
+//   width:320px;
+//   margin: 0 auto;
+//   background:#fff;
+//   overflow:hidden;
+// }
+
+// .barcode-wrapper{
+//   width:320px;
+//   display:flex;
+//   flex-direction:column;
+//   align-items:center;
+//   justify-content:center;
+//   padding:4px;
+// }
+
+// .barcode-wrapper svg{
+//   width:320px !important;
+//   height:80px !important;
+// }
+
+// @page{
+//   margin:0;
+//   size:auto;
+// }
+
+// </style>
+// </head>
+
+// <body>
+//   <div class="barcode-wrapper">
+//     ${svgData}
+//   </div>
+
+//   <script>
+//     window.onload = function(){
+//       window.print();
+//       window.close();
+//     }
+//   <\/script>
+// </body>
+// </html>
+// `);
+//     printWindow.document.close();
+//   }, [barcodeValue]);
+
+const printBarcode = useCallback(() => {
+  if (!barcodeValue || !barcodeRef.current) return;
+
+  const svgEl = barcodeRef.current.querySelector("svg");
+  if (!svgEl) return;
+
+  const LABEL_W = "1.5in";
+  const LABEL_H = "1in";
+
+
+  const svgClone = svgEl.cloneNode(true) as SVGElement;
+  svgClone.setAttribute("width", "1.5in");
+  svgClone.setAttribute("height", "0.75in"); 
+  svgClone.setAttribute("viewBox", `0 0 ${svgEl.viewBox.baseVal.width} ${svgEl.viewBox.baseVal.height}`);
+
+  const svgData = new XMLSerializer().serializeToString(svgClone);
+
+  const printWindow = window.open("", "_blank", "width=300,height=200");
+  if (!printWindow) {
+    toast.error("Allow popups to print the barcode");
+    return;
+  }
+
+  printWindow.document.write(`
 <!DOCTYPE html>
 <html>
 <head>
 <title>${barcodeValue}</title>
-
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html,body{
-  width:320px;
-  margin: 0 auto;
-  background:#fff;
-  overflow:hidden;
-}
+  @page {
+    size: ${LABEL_W} ${LABEL_H};
+    margin: 0;
+  }
 
-.barcode-wrapper{
-  width:320px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  padding:4px;
-}
+  html, body {
+    width: ${LABEL_W};
+    height: ${LABEL_H};
+    background: #fff;
+    overflow: hidden;
+  }
 
-.barcode-wrapper svg{
-  width:320px !important;
-  height:80px !important;
-}
+  .label {
+    width: ${LABEL_W};
+    height: ${LABEL_H};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-@page{
-  margin:0;
-  size:auto;
-}
-
+  .label svg {
+    width: 1.4in !important;
+    height: 0.9in !important;
+    display: block;
+  }
 </style>
 </head>
-
 <body>
-  <div class="barcode-wrapper">
+  <div class="label">
     ${svgData}
   </div>
-
   <script>
-    window.onload = function(){
+    window.onload = function() {
       window.print();
       window.close();
     }
@@ -129,8 +203,8 @@ html,body{
 </body>
 </html>
 `);
-    printWindow.document.close();
-  }, [barcodeValue]);
+  printWindow.document.close();
+}, [barcodeValue]);
 
   const downloadBarcode = useCallback(() => {
     if (!barcodeValue || !barcodeRef.current) return;
@@ -400,7 +474,7 @@ export default function ProductSingleDetails() {
                 {hasBarcode ? (
                   <>
                     {/* Barcode display */}
-                    <div
+                    {/* <div
                       ref={barcodeRef}
                       className="flex justify-center items-center bg-white"
                       style={{
@@ -420,7 +494,25 @@ export default function ProductSingleDetails() {
                         margin={0}
                         fontSize={14}
                       />
-                    </div>
+                    </div> */}
+
+
+<div
+  ref={barcodeRef}
+  className="flex justify-center items-center bg-white"
+  style={{ width: "320px", height: "90px", margin: "0 auto" }}
+>
+  <Barcode
+    value={product.barcode}
+    format="CODE128"
+    width={1.5} 
+    height={55}  
+    displayValue
+    margin={2}
+    fontSize={11} 
+    textMargin={3}
+  />
+</div>
 
                     {/* Barcode value pill */}
                     {/* <div className="flex items-center justify-center">
