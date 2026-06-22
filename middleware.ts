@@ -16,21 +16,20 @@ const roleRoutes: Record<string, UserRole[]> = {
   "/staff/dashboard/superadmin": [UserRole.SUPER_ADMIN],
   "/staff/dashboard/admin": [UserRole.ADMIN],
 
-  "/staff/dashboard/admin/users-management": [UserRole.ADMIN],
-
-  "/staff/dashboard/admin/courier-settings": [UserRole.ADMIN],
-
-  "/staff/dashboard/admin/product-management": [
+  "/staff/dashboard/admin/users-management": [
+    UserRole.SUPER_ADMIN,
     UserRole.ADMIN,
-    UserRole.MANAGER,
-    UserRole.MODERATOR,
-    UserRole.TELLICELSS,
   ],
-  "/staff/dashboard/admin/category-management": [
+
+  "/staff/dashboard/admin/courier-settings": [
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+  ],
+
+  "/staff/dashboard/product-management": [UserRole.ADMIN, UserRole.MANAGER],
+  "/staff/dashboard/category-management": [
     UserRole.ADMIN,
     UserRole.MANAGER,
-    UserRole.MODERATOR,
-    UserRole.TELLICELSS,
   ],
   "/staff/dashboard/admin/brand-management": [
     UserRole.ADMIN,
@@ -70,8 +69,8 @@ function getDashboardRoute(role: UserRole) {
     case UserRole.SUPER_ADMIN:
       return "/staff/dashboard/superadmin";
 
-  case UserRole.MANAGER:
-  return "/staff/dashboard/orders-management";
+    case UserRole.MANAGER:
+      return "/staff/dashboard/orders-management";
 
     case UserRole.MODERATOR:
     case UserRole.TELLICELSS:
@@ -148,17 +147,15 @@ export async function middleware(req: NextRequest) {
   const isLoginRoute = pathname === "/login";
 
   // Logged in user trying login page
-if (accessToken && (isLoginRoute || isHomeRoute)) {
-  const payload: any = await verifyToken(accessToken);
+  if (accessToken && (isLoginRoute || isHomeRoute)) {
+    const payload: any = await verifyToken(accessToken);
 
-  const role = payload?.role || payload?.user?.role;
+    const role = payload?.role || payload?.user?.role;
 
-  if (role) {
-    return NextResponse.redirect(
-      new URL(getDashboardRoute(role), req.url)
-    );
+    if (role) {
+      return NextResponse.redirect(new URL(getDashboardRoute(role), req.url));
+    }
   }
-}
 
   // Dashboard protection
   if (isDashboardRoute) {
@@ -199,9 +196,5 @@ if (accessToken && (isLoginRoute || isHomeRoute)) {
 }
 
 export const config = {
-  matcher: [
-    "/",
-    "/login",
-    "/staff/dashboard/:path*",
-  ],
+  matcher: ["/", "/login", "/staff/dashboard/:path*"],
 };
