@@ -104,7 +104,7 @@ html,body{
 
 .barcode-wrapper svg{
   width:320px !important;
-  height:100px !important;
+  height:80px !important;
 }
 
 @page{
@@ -407,15 +407,15 @@ export default function ProductSingleDetails() {
                         width: "320px",
                         minWidth: "320px",
                         maxWidth: "320px",
-                        height: "100px",
+                        height: "80px",
                         margin: "0 auto",
                       }}
                     >
                       <Barcode
                         value={product.barcode}
                         format="CODE128"
-                        width={1.2}
-                        height={100}
+                        width={2}
+                        height={80}
                         displayValue
                         margin={0}
                         fontSize={14}

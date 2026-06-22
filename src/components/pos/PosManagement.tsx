@@ -169,14 +169,20 @@ export default function POSManagement() {
 
   const handleBarcodeScan = useCallback(
     (barcode: string) => {
+      // console.log("RAW:", barcode);
+
       const cleanBarcode = barcode.trim().toLowerCase();
+
+      // console.log("CLEAN:", cleanBarcode);
 
       const product = allProducts.find(
         (p) => p.barcode?.trim().toLowerCase() === cleanBarcode,
       );
 
+      // console.log("FOUND:", product);
+
       if (!product) {
-        toast.error("Product not found");
+        toast.error(`Barcode not found: ${cleanBarcode}`);
         return;
       }
 
@@ -188,7 +194,7 @@ export default function POSManagement() {
   // Setup USB barcode scanner listener
   useBarcodeScanner({
     onBarcodeScanned: handleBarcodeScan,
-    timeout: 100,
+    timeout: 300,
   });
 
   const handleRemoveFromCart = (productId: string) => {
