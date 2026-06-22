@@ -1,13 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 "use client";
 
 import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {Controller, useForm} from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Plus, Upload, X } from "lucide-react";
-import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,10 +22,16 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
-import logo from "../../../../public/assets/FRN-Logo-scaled.webp";
 import { useCreateCategoryMutation } from "@/redux/features/category/category.api";
-import {Separator} from "@/components/ui/separator";
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import Image from "next/image";
 
 // ─── Enum ─────────────────────────────────────────────────────────────────────
 
@@ -41,7 +47,11 @@ const categorySchema = z.object({
   description: z.string().min(5, "Description must be at least 5 characters"),
   showOrder: z.preprocess(
     (val) => (val !== undefined && val !== "" ? Number(val) : undefined),
-    z.number().int().positive("Display order must be a positive number").optional()
+    z
+      .number()
+      .int()
+      .positive("Display order must be a positive number")
+      .optional(),
   ),
   status: z.nativeEnum(CategoryStatus, { message: "Please select a status" }),
 });
@@ -140,9 +150,7 @@ export default function CreateCategoryModal() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent
-        className="sm:max-w-md max-h-[90vh] overflow-y-auto p-6"
-      >
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto p-6">
         {/* Gold accent line */}
         <div className="absolute left-0 right-0 top-0 h-0.5 " />
 
@@ -161,10 +169,12 @@ export default function CreateCategoryModal() {
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-1">
-
           {/* Title */}
           <div className="space-y-1.5">
-            <Label htmlFor="title" className=" text-xs font-semibold tracking-widest uppercase">
+            <Label
+              htmlFor="title"
+              className=" text-xs font-semibold tracking-widest uppercase"
+            >
               Title
             </Label>
             <Input
@@ -173,12 +183,17 @@ export default function CreateCategoryModal() {
               placeholder="Enter category title"
               {...register("title")}
             />
-            {errors.title && <p className="text-xs text-red-400">{errors.title.message}</p>}
+            {errors.title && (
+              <p className="text-xs text-red-400">{errors.title.message}</p>
+            )}
           </div>
 
           {/* Description */}
           <div className="space-y-1.5">
-            <Label htmlFor="description" className=" text-xs font-semibold tracking-widest uppercase">
+            <Label
+              htmlFor="description"
+              className=" text-xs font-semibold tracking-widest uppercase"
+            >
               Description
             </Label>
             <Textarea
@@ -187,17 +202,25 @@ export default function CreateCategoryModal() {
               rows={3}
               {...register("description")}
             />
-            {errors.description && <p className="text-xs text-red-400">{errors.description.message}</p>}
+            {errors.description && (
+              <p className="text-xs text-red-400">
+                {errors.description.message}
+              </p>
+            )}
           </div>
 
           {/* Show Order & Status — side by side */}
           <div className="grid grid-cols-2 gap-3">
-
             {/* Show Order */}
             <div className="space-y-1.5">
-              <Label htmlFor="showOrder" className=" text-xs font-semibold tracking-widest uppercase">
+              <Label
+                htmlFor="showOrder"
+                className=" text-xs font-semibold tracking-widest uppercase"
+              >
                 Display Order{" "}
-                <span className="text-[#96999A] normal-case font-normal">(optional)</span>
+                <span className="text-[#96999A] normal-case font-normal">
+                  (optional)
+                </span>
               </Label>
               <Input
                 id="showOrder"
@@ -206,46 +229,46 @@ export default function CreateCategoryModal() {
                 placeholder="e.g. 1"
                 {...register("showOrder")}
               />
-              {errors.showOrder && <p className="text-xs text-red-400">{errors.showOrder.message}</p>}
+              {errors.showOrder && (
+                <p className="text-xs text-red-400">
+                  {errors.showOrder.message}
+                </p>
+              )}
             </div>
 
             {/* Status */}
             <div className="space-y-1.5">
               <Label
-                  htmlFor="status"
-                  className="text-xs font-semibold tracking-widest uppercase"
+                htmlFor="status"
+                className="text-xs font-semibold tracking-widest uppercase"
               >
                 Status
               </Label>
 
               <Controller
-                  name="status"
-                  control={control}
-                  render={({ field }) => (
-                      <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
+                name="status"
+                control={control}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
 
-                        <SelectContent position={"popper"}>
-                          {Object.values(CategoryStatus).map((s) => (
-                              <SelectItem key={s} value={s}>
-                                {s.charAt(0) + s.slice(1).toLowerCase()}
-                              </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                  )}
+                    <SelectContent position={"popper"}>
+                      {Object.values(CategoryStatus).map((s) => (
+                        <SelectItem key={s} value={s}>
+                          {s.charAt(0) + s.slice(1).toLowerCase()}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               />
 
               {errors.status && (
-                  <p className="text-xs text-red-400">{errors.status.message}</p>
+                <p className="text-xs text-red-400">{errors.status.message}</p>
               )}
             </div>
-
           </div>
 
           {/* Image Upload */}
@@ -256,15 +279,25 @@ export default function CreateCategoryModal() {
 
             {imagePreview ? (
               <div className="relative flex items-center gap-3 rounded-md border border-[#4a5568] hover:bg-gray-200 p-2">
-                <img src={imagePreview} alt="Preview" className="h-14 w-14 rounded-md object-cover shrink-0" />
+                <Image
+                  src={imagePreview}
+                  alt="Preview"
+                  width={300}
+                  height={300}
+                  priority
+                  quality={90}
+                  className="h-14 w-14 rounded-md object-cover shrink-0"
+                />
                 <div className="flex-1 min-w-0">
                   {/*<p className="text-sm text-white truncate">{imageFile?.name}</p>*/}
                   <p className="text-xs text-[#96999A]">
-                    {imageFile ? (imageFile.size / 1024).toFixed(1) + " KB" : ""}
+                    {imageFile
+                      ? (imageFile.size / 1024).toFixed(1) + " KB"
+                      : ""}
                   </p>
                 </div>
                 <Button
-                    variant={"destructive"}
+                  variant={"destructive"}
                   type="button"
                   onClick={clearImage}
                   className="shrink-0 cursor-pointer text-[#96999A] hover:text-red-400 hover:bg-red-400/10 transition-colors"
@@ -284,7 +317,9 @@ export default function CreateCategoryModal() {
                   <p className="text-sm text-[#96999A] ">
                     Click to upload image
                   </p>
-                  <p className="text-xs text-[#96999A]/70">PNG, JPG, WEBP — max 2MB</p>
+                  <p className="text-xs text-[#96999A]/70">
+                    PNG, JPG, WEBP — max 2MB
+                  </p>
                 </div>
                 <input
                   id="image-upload"
@@ -301,7 +336,7 @@ export default function CreateCategoryModal() {
 
           {/* Submit */}
           <Button
-              variant={"default"}
+            variant={"default"}
             type="submit"
             disabled={isLoading}
             className="w-full mt-2 cursor-pointer

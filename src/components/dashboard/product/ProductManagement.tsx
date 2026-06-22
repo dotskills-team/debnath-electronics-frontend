@@ -501,14 +501,14 @@ export default function ProductManagement() {
           <Button
             variant="outline"
             onClick={() =>
-              router.push("/staff/dashboard/admin/product-management/trash")
+              router.push("/staff/dashboard/product-management/trash")
             }
             className="gap-2 hover:cursor-pointer rounded-md border-red-200 text-red-600 hover:border-red-300 hover:bg-red-50 hover:text-red-700 dark:border-red-900/40 dark:text-red-400 dark:hover:border-red-800 dark:hover:bg-red-900/10 transition-colors"
           >
             <Trash2 className="h-4 w-4" />
             <span className="hidden sm:inline">Trash</span>
           </Button>
-          <Link href="/staff/dashboard/admin/product-management/create-product">
+          <Link href="/staff/dashboard/product-management/create-product">
             <Button className="group gap-2 hover:cursor-pointer rounded-md bg-amber-500 text-white hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-500 relative overflow-hidden transition-all duration-200 active:scale-95">
               <span
                 aria-hidden
@@ -1143,7 +1143,7 @@ export default function ProductManagement() {
                               className="gap-2 text-sm cursor-pointer"
                               onClick={() =>
                                 router.push(
-                                  `/staff/dashboard/admin/product-management/product-details/${product.slug}`,
+                                  `/staff/dashboard/product-management/product-details/${product.slug}`,
                                 )
                               }
                             >
@@ -1155,7 +1155,7 @@ export default function ProductManagement() {
                               className="gap-2 text-sm cursor-pointer text-amber-600 focus:text-amber-600 dark:text-amber-400"
                               onClick={() =>
                                 router.push(
-                                  `/staff/dashboard/admin/product-management/update-product/${product.slug}`,
+                                  `/staff/dashboard/product-management/update-product/${product.slug}`,
                                 )
                               }
                             >

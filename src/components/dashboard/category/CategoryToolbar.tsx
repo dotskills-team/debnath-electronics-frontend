@@ -39,7 +39,7 @@ export default function CategoryToolbar({
                 type="button"
                 variant="destructive"
                 className="flex items-center gap-2 cursor-pointer"
-                onClick={() => router.push("/staff/dashboard/admin/category-management/trash")}
+                onClick={() => router.push("/staff/dashboard/category-management/trash")}
             >
                 <Trash2 className="h-4 w-4" />
                 Trash
