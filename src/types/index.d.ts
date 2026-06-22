@@ -8,28 +8,34 @@ export interface IIngredient {
   price: number;
 }
 
-export interface IUser {
-  _id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  address: string;
-  picture?: string;
-  role: Role;
-  isActive: IsActive;
-  isDeleted?: boolean;
-  isVerified?: boolean;
-  subscriptionPlan?: IPlan | string;
-  subscriptionPrice?: number;
-  subscriptionAccess?: boolean;
-  subscriptionStartAt?: string;
-  subscriptionExpireAt?: string;
-  lastLoginAt?: string;
-  salary?: number;
-  commissionSalary?: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
+// export interface IUser {
+//   _id: string;
+//   name: string;
+//   email: string;
+//   phone?: string;
+//   address: string;
+//   subscriptionPlan?: {
+//     _id: string;
+//     name: string;
+//     price: number;
+//     durationInDays: number;
+//   };
+//   picture?: string;
+//   role: Role;
+//   isActive: IsActive;
+//   isDeleted?: boolean;
+//   isVerified?: boolean;
+//   subscriptionPlan?: IPlan | string;
+//   subscriptionPrice?: number;
+//   subscriptionAccess?: boolean;
+//   subscriptionStartAt?: string;
+//   subscriptionExpireAt?: string;
+//   lastLoginAt?: string;
+//   salary?: number;
+//   commissionSalary?: number;
+//   createdAt?: string;
+//   updatedAt?: string;
+// }
 
 export interface SubscriptionStats {
   totalUsers: number;
@@ -170,6 +176,12 @@ export interface IUser {
   permissions?: IPermission[];
   address: string;
   status?: string;
+   subscriptionPlan?: {
+    _id: string;
+    name: string;
+    price: number;
+    durationInDays: number;
+  };
   picture?: string;
   isActive?: IsActive;
   isVerified?: boolean;

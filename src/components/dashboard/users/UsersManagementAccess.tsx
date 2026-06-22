@@ -61,6 +61,7 @@ import {
   Calendar,
   Power,
   PowerOff,
+  AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -111,6 +112,21 @@ const inputCls =
 
 const LabelCls =
   "text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400";
+
+export const getDaysLeft = (expireAt?: string | null) => {
+  if (!expireAt) return 0;
+
+  const expiry = new Date(expireAt);
+
+  if (isNaN(expiry.getTime())) {
+    return 0;
+  }
+
+  return Math.max(
+    0,
+    Math.ceil((expiry.getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
+  );
+};
 
 function SubmitBtn({
   loading,
@@ -869,6 +885,8 @@ export function UserDetailsModal({
   const { data, isLoading } = useGetSingleUserQuery(userId!, { skip: !userId });
   const user: IUser | undefined = data?.data as any;
 
+  const daysLeft = getDaysLeft(user?.subscriptionExpireAt);
+
   const rows = user
     ? [
         { icon: Mail, label: "Email", value: user.email },
@@ -879,6 +897,33 @@ export function UserDetailsModal({
           icon: User,
           label: "Account Status",
           value: <ActiveStatusBadge status={user.isActive} />,
+        },
+        {
+          icon: CreditCard,
+          label: "Plan",
+          value:
+            typeof user.subscriptionPlan === "object"
+              ? user.subscriptionPlan.name
+              : user?.subscriptionPlan || "No Plan",
+        },
+        {
+          icon: Calendar,
+          label: "Started",
+          value: user.subscriptionStartAt
+            ? format(new Date(user.subscriptionStartAt), "PP")
+            : "—",
+        },
+        {
+          icon: Calendar,
+          label: "Expires",
+          value: user.subscriptionExpireAt
+            ? format(new Date(user.subscriptionExpireAt), "PP")
+            : "—",
+        },
+        {
+          icon: CreditCard,
+          label: "Subscription Price",
+          value: `৳ ${user.subscriptionPrice || 0}`,
         },
         {
           icon: CreditCard,
@@ -946,6 +991,26 @@ export function UserDetailsModal({
                 <p className="text-xs text-gray-400">{user.email}</p>
               </div>
             </div>
+
+            {daysLeft !== null && daysLeft <= 7 && (
+              <div
+                className={`rounded-xl p-3 border ${
+                  daysLeft < 0
+                    ? "bg-red-50 border-red-200"
+                    : "bg-orange-50 border-orange-200"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4" />
+
+                  <p>
+                    {daysLeft > 0
+                      ? `${daysLeft} day${daysLeft > 1 ? "s" : ""} left`
+                      : "Expired"}
+                  </p>
+                </div>
+              </div>
+            )}
 
             <ScrollArea className="max-h-[60vh]">
               <div className="px-6 py-4 space-y-3">
@@ -1161,10 +1226,42 @@ export function UsersManagementAccess() {
 
                     {/* Subscription */}
                     <TableCell className="px-4 py-3">
-                      <SubscriptionBadge
-                        access={user.subscriptionAccess}
-                        expireAt={user.subscriptionExpireAt}
-                      />
+                      <div className="space-y-1">
+                        <SubscriptionBadge
+                          access={user.subscriptionAccess}
+                          expireAt={user.subscriptionExpireAt}
+                        />
+
+                        {(() => {
+                          const daysLeft = getDaysLeft(
+                            user.subscriptionExpireAt,
+                          );
+
+                          if (daysLeft === null) return null;
+
+                          if (daysLeft <= 0) {
+                            return (
+                              <p className="text-[11px] font-medium text-red-500">
+                                Subscription Expired
+                              </p>
+                            );
+                          }
+
+                          if (daysLeft <= 7) {
+                            return (
+                              <p className="text-[11px] font-medium text-orange-500">
+                                {daysLeft} day{daysLeft > 1 ? "s" : ""} left
+                              </p>
+                            );
+                          }
+
+                          return (
+                            <p className="text-[11px] text-muted-foreground">
+                              {daysLeft} day{daysLeft > 1 ? "s" : ""} left
+                            </p>
+                          );
+                        })()}
+                      </div>
                     </TableCell>
 
                     {/* Expires */}

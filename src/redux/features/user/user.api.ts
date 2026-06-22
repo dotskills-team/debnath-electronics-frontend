@@ -6,7 +6,6 @@ import type {
   IResponse,
   GetQueryParams,
 } from "@/types";
-import { ILead } from "@/types/lead.types";
 
 interface GetAllUsersResponse {
   success: boolean;
@@ -216,7 +215,6 @@ export const userApi = baseApi.injectEndpoints({
       providesTags: ["USERS"],
     }),
 
-    //  GET ME (Logged-in user's own profile)
     getMe: builder.query<IUserApiResponse, void>({
       query: () => ({
         url: "/user/me",
@@ -226,7 +224,6 @@ export const userApi = baseApi.injectEndpoints({
       providesTags: ["ME", "USER"],
     }),
 
-    // ⭐ GET ALL TRASH
     getAllTrashUsers: builder.query<GetAllUsersResponse, GetQueryParams>({
       query: (params) => ({
         url: "/user/all-trash-users",
@@ -236,8 +233,7 @@ export const userApi = baseApi.injectEndpoints({
       providesTags: ["USERS"],
     }),
 
-    // ⭐ TRASH UPDATE  and Restore both work
-    trashUpdateUser: builder.mutation<IResponse<ILead>, { _id: string }>({
+    trashUpdateUser: builder.mutation<IResponse<IUser>, { _id: string }>({
       query: ({ _id }) => ({
         url: `/user/user-trash/${_id}`,
         method: "POST",
@@ -248,7 +244,6 @@ export const userApi = baseApi.injectEndpoints({
       ],
     }),
 
-    // ⭐ GET ALL TRASH Customer
     getAllTrashCustomers: builder.query<GetAllUsersResponse, GetQueryParams>({
       query: (params) => ({
         url: "/user/all-trash-customers",
@@ -258,7 +253,6 @@ export const userApi = baseApi.injectEndpoints({
       providesTags: ["CUSTOMERS"],
     }),
 
-    // ⭐ TRASH UPDATE  and Restore both work customers
     trashUpdateCustomer: builder.mutation<IResponse<IUser>, { _id: string }>({
       query: ({ _id }) => ({
         url: `/user/customer-trash/${_id}`,
