@@ -4,6 +4,7 @@ export interface IOrderStats {
   CONFIRMED: number;
   COMPLETED: number;
   CANCELLED: number;
+  DELIVERED: number;
   COURIER_ASSIGNED: number;
   SOLD: number;
   NO_RESPONSE: number;

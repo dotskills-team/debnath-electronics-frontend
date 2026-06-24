@@ -113,7 +113,7 @@ const ORDER_STATUS_OPTIONS = [
   { value: "PENDING", label: "Pending", dot: "bg-amber-500" },
   { value: "CONFIRMED", label: "Confirmed", dot: "bg-emerald-500" },
   { value: "COURIERASSIGNED", label: "Courier Assigned", dot: "bg-blue-500" },
-  
+
   { value: "NO_RESPONSE", label: "No Response", dot: "bg-rose-500" },
   { value: "SOLD", label: "Sold", dot: "bg-emerald-500" },
   { value: "COMPLETED", label: "Completed", dot: "bg-violet-500" },
@@ -196,7 +196,7 @@ const STATUS_BADGE: Record<string, string> = {
 
   NO_RESPONSE:
     "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800",
-    SOLD: "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800",
+  SOLD: "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800",
   COMPLETED:
     "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-900/20 dark:text-violet-400 dark:border-violet-800",
   CANCELLED:
@@ -316,10 +316,10 @@ export default function DashboardOverview() {
   if (dateFrom) queryParams["updatedAt[gte]"] = dateFrom.toISOString();
   if (dateTo) queryParams["updatedAt[lte]"] = dateTo.toISOString();
   if (orderStatus === "COURIERASSIGNED") {
-  queryParams.deliveryStatus = "COURIERASSIGNED";
-} else if (orderStatus && orderStatus !== "ALL") {
-  queryParams.orderStatus = orderStatus;
-}
+    queryParams.deliveryStatus = "COURIERASSIGNED";
+  } else if (orderStatus && orderStatus !== "ALL") {
+    queryParams.orderStatus = orderStatus;
+  }
 
   const {
     data: overviewRes,
@@ -819,13 +819,7 @@ export default function DashboardOverview() {
                 cls: "border-green-200 bg-green-50/60 dark:border-green-900/30 dark:bg-green-900/10",
                 val: "text-green-700 dark:text-green-400",
               },
-              {
-                key: "COURIERASSIGNED",
-                label: "Courier Assigned",
-                icon: Truck,
-                cls: "border-blue-200 bg-blue-50/60 dark:border-blue-900/30 dark:bg-blue-900/10",
-                val: "text-blue-700 dark:text-blue-400",
-              },
+
               {
                 key: "NO_RESPONSE",
                 label: "No Response",
