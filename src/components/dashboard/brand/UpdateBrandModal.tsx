@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -6,7 +8,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {Controller, useForm} from "react-hook-form";
 import { toast } from "sonner";
 import { Upload, X } from "lucide-react";
-import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
-import logo from "../../../../public/assets/FRN-Logo-scaled.webp";
+// import logo from "../../../../public/assets/FRN-Logo-scaled.webp";
 import { useUpdateBrandMutation } from "@/redux/features/brand/brand.api";
 import {Separator} from "@/components/ui/separator";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
@@ -34,8 +35,8 @@ enum BrandStatus {
 
 const updateBrandSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters"),
-  description: z.string().min(5, "Description must be at least 5 characters"),
-  status: z.nativeEnum(BrandStatus, { message: "Please select a status" }),
+  description: z.string().optional(),
+  status: z.nativeEnum(BrandStatus).optional(),
 });
 
 type UpdateBrandFormValues = z.infer<typeof updateBrandSchema>;
@@ -46,11 +47,11 @@ interface UpdateBrandModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   brand: {
-    _id: string;
+    _id?: string;
     title: string;
     description?: string;
     image?: string;
-    status: BrandStatus;
+    status?: BrandStatus;
   };
 }
 
@@ -122,11 +123,11 @@ export default function UpdateBrandModal({
     try {
       const formData = new FormData();
       formData.append("title", data.title);
-      formData.append("description", data.description);
-      formData.append("status", data.status);
+      formData.append("description", data?.description ?? "");
+      formData.append("status", data?.status ?? "");
       if (imageFile) formData.append("image", imageFile);
 
-      const res = await updateBrand({ id: brand._id, formData }).unwrap();
+      const res = await updateBrand({ id: brand?._id ?? "", formData }).unwrap();
       console.log("Update brand res", res);
       if (res.success) {
         toast.success("Brand updated successfully!");

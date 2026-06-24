@@ -113,7 +113,9 @@ const ORDER_STATUS_OPTIONS = [
   { value: "PENDING", label: "Pending", dot: "bg-amber-500" },
   { value: "CONFIRMED", label: "Confirmed", dot: "bg-emerald-500" },
   { value: "COURIERASSIGNED", label: "Courier Assigned", dot: "bg-blue-500" },
+  
   { value: "NO_RESPONSE", label: "No Response", dot: "bg-rose-500" },
+  { value: "SOLD", label: "Sold", dot: "bg-emerald-500" },
   { value: "COMPLETED", label: "Completed", dot: "bg-violet-500" },
   { value: "CANCELLED", label: "Cancelled", dot: "bg-red-500" },
 ];
@@ -194,6 +196,7 @@ const STATUS_BADGE: Record<string, string> = {
 
   NO_RESPONSE:
     "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800",
+    SOLD: "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800",
   COMPLETED:
     "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-900/20 dark:text-violet-400 dark:border-violet-800",
   CANCELLED:
@@ -384,8 +387,8 @@ export default function DashboardOverview() {
           fill: "#10b981",
         },
         {
-          name: "Completed",
-          value: data?.orderStats?.COMPLETED,
+          name: "Sold",
+          value: data?.orderStats?.SOLD,
           fill: "#8b5cf6",
         },
         {
@@ -810,11 +813,11 @@ export default function DashboardOverview() {
                 val: "text-emerald-700 dark:text-emerald-400",
               },
               {
-                key: "COMPLETED",
-                label: "Completed",
+                key: "SOLD",
+                label: "Sold",
                 icon: CheckCircle2,
-                cls: "border-violet-200 bg-violet-50/60 dark:border-violet-900/30 dark:bg-violet-900/10",
-                val: "text-violet-700 dark:text-violet-400",
+                cls: "border-green-200 bg-green-50/60 dark:border-green-900/30 dark:bg-green-900/10",
+                val: "text-green-700 dark:text-green-400",
               },
               {
                 key: "COURIERASSIGNED",

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -6,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {Controller, useForm} from "react-hook-form";
 import { toast } from "sonner";
 import { Plus, Upload, X } from "lucide-react";
-import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
-import logo from "../../../../public/assets/FRN-Logo-scaled.webp";
+// import logo from "../../../../public/assets/FRN-Logo-scaled.webp";
 import { useCreateBrandMutation } from "@/redux/features/brand/brand.api";
 import {Separator} from "@/components/ui/separator";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
@@ -37,8 +37,8 @@ enum BrandStatus {
 
 const brandSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters"),
-  description: z.string().min(5, "Description must be at least 5 characters"),
-  status: z.nativeEnum(BrandStatus, { message: "Please select a status" }),
+  description: z.string().optional(),
+  status: z.nativeEnum(BrandStatus).optional(),
 });
 
 type BrandFormValues = z.infer<typeof brandSchema>;
@@ -103,8 +103,8 @@ export default function CreateBrandModal() {
     try {
       const formData = new FormData();
       formData.append("title", data.title);
-      formData.append("description", data.description);
-      formData.append("status", data.status);
+      formData.append("description", data?.description ?? "");
+      formData.append("status", data?.status ?? "");
       formData.append("image", imageFile);
 
       const res = await createBrand(formData).unwrap();
