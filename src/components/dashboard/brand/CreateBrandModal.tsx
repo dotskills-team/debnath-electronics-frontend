@@ -95,17 +95,14 @@ export default function CreateBrandModal() {
   };
 
   const onSubmit = async (data: BrandFormValues) => {
-    if (!imageFile) {
-      setImageError("Brand image is required");
-      return;
-    }
-    setImageError(null);
     try {
       const formData = new FormData();
       formData.append("title", data.title);
       formData.append("description", data?.description ?? "");
       formData.append("status", data?.status ?? "");
-      formData.append("image", imageFile);
+      if(imageFile){
+        formData.append("image", imageFile);
+      }
 
       const res = await createBrand(formData).unwrap();
       if (res.success) {
