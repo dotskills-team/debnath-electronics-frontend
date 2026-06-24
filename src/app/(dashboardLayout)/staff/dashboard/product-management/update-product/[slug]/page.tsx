@@ -1,12 +1,19 @@
-import React from 'react';
 import UpdateProduct from "@/components/dashboard/product/UpdateProduct";
 
-const Page = () => {
-    return (
-        <div>
-            <UpdateProduct />
-        </div>
-    );
-};
+interface UpdateProductPageProps {
+  params: Promise<{
+    slug: string;
+  }>;
+}
 
-export default Page;
+export default async function UpdateProductPage({
+  params,
+}: UpdateProductPageProps) {
+  const { slug } = await params;
+
+  return (
+    <div>
+      <UpdateProduct slug={slug} />
+    </div>
+  );
+}

@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 "use client";
 
@@ -7,7 +9,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {Controller, useForm} from "react-hook-form";
 import { toast } from "sonner";
 import { Upload, X } from "lucide-react";
-import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,22 +22,21 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
-import logo from "../../../../public/assets/FRN-Logo-scaled.webp";
+// import logo from "../../../../public/assets/FRN-Logo-scaled.webp";
 import { useUpdateCategoryMutation } from "@/redux/features/category/category.api";
 import { CategoryStatus } from "./CreateCategoryModal";
 import {Separator} from "@/components/ui/separator";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
-
-// ─── Schema ───────────────────────────────────────────────────────────────────
+import Image from "next/image";
 
 const updateCategorySchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters"),
-  description: z.string().min(5, "Description must be at least 5 characters"),
+  description: z.string().optional(),
   showOrder: z.preprocess(
     (val) => (val !== undefined && val !== "" ? Number(val) : undefined),
     z.number().int().positive("Display order must be a positive number").optional()
   ),
-  status: z.nativeEnum(CategoryStatus, { message: "Please select a status" }),
+  status: z.nativeEnum(CategoryStatus).optional(),
 });
 
 type UpdateCategoryFormValues = z.infer<typeof updateCategorySchema>;
@@ -92,7 +92,7 @@ export default function UpdateCategoryModal({
         showOrder: category.showOrder ?? undefined,
         status: category.status ?? undefined,
       });
-      setImagePreview(category.image ?? null);
+      setImagePreview(category?.image ?? null);
       setImageFile(null);
     }
   }, [category, reset]);
@@ -126,8 +126,8 @@ export default function UpdateCategoryModal({
     try {
       const formData = new FormData();
       formData.append("title", data.title);
-      formData.append("description", data.description);
-      formData.append("status", data.status);
+      formData.append("description", data?.description ?? "");
+      formData.append("status", data?.status ?? "");
       if (data.showOrder !== undefined) formData.append("showOrder", String(data.showOrder));
       if (imageFile) formData.append("image", imageFile);
 
@@ -190,7 +190,7 @@ export default function UpdateCategoryModal({
           {/* Description */}
           <div className="space-y-1.5">
             <Label htmlFor="description" className="text-xs font-semibold tracking-widest uppercase">
-              Description
+              Description (optional)
             </Label>
             <Textarea
               id="description"
@@ -270,7 +270,7 @@ export default function UpdateCategoryModal({
             {imagePreview ? (
               <div className="relative flex items-center gap-3 rounded-md border border-[#1e2829] border-dashed
               cursor-pointer hover:bg-gray-200 p-2">
-                <img src={imagePreview} alt="Preview" className="h-14 w-14 rounded-md object-cover shrink-0" />
+                <Image width={500} height={500} priority quality={90} src={imagePreview} alt="Preview" className="h-14 w-14 rounded-md object-cover shrink-0" />
                 <div className="flex-1 min-w-0">
                   {/*<p className="text-sm text-white truncate">*/}
                   {/*  {imageFile ? imageFile.name : "Current image"}*/}

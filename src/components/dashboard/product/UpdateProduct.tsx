@@ -5,13 +5,18 @@
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -22,7 +27,7 @@ import {
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 
-import { Upload, X, Loader2, RefreshCw } from "lucide-react";
+import { Upload, X, Loader2, RefreshCw, CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import { uploadMultipleToCloudinary } from "@/utils/cloudinary";
 
@@ -37,6 +42,9 @@ import { IBrand, ICategory } from "@/types";
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import { Separator } from "@/components/ui/separator";
 import { useGetMeQuery } from "@/redux/features/user/user.api";
+import { Calendar } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
+import { format } from "date-fns";
 
 // Editor
 const ProductEditor = dynamic(
@@ -53,23 +61,48 @@ enum ProductStatus {
 // VALIDATION
 const schema = z.object({
   title: z.string().min(2),
-  brand: z.string(),
-  category: z.string(),
+
+  brand: z.string().optional(),
+
+  category: z.string().optional(),
+
   buyingPrice: z.preprocess(
     (v) => (v === "" || v === undefined ? undefined : Number(v)),
     z.number().optional(),
   ),
-  price: z.preprocess((v) => Number(v), z.number()),
-  totalAddedStock: z.preprocess((v) => Number(v), z.number()),
+
+  price: z.preprocess(
+    (v) => (v === "" || v === undefined ? undefined : Number(v)),
+    z.number().optional(),
+  ),
+
+  totalAddedStock: z.preprocess(
+    (v) => (v === "" || v === undefined ? undefined : Number(v)),
+    z.number().optional(),
+  ),
+
   discountPrice: z.preprocess(
     (v) => (v === "" ? undefined : Number(v)),
     z.number().optional(),
   ),
-  status: z.nativeEnum(ProductStatus),
-  description: z.string(),
+
+  status: z.nativeEnum(ProductStatus).optional(),
+
+  description: z.string().optional(),
+
   images: z.any().optional(),
-  isCusFavorite: z.enum(["true", "false"]),
+
   barcode: z.string().optional(),
+
+  isCusFavorite: z.enum(["true", "false"]).optional(),
+  warrantyEnabled: z.boolean().optional(),
+
+  warrantyType: z.string().optional(),
+
+  warrantyStartDate: z.date().optional(),
+
+  warrantyEndDate: z.date().optional(),
+
   adjustStock: z.preprocess(
     (v) => (v === "" || v === undefined ? 0 : Number(v)),
     z.number().optional(),
@@ -79,12 +112,11 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 export const generateBarcode = () => {
-  return `FF${Math.floor(100000 + Math.random() * 900000)}`;
+  return `DE${Math.floor(100000 + Math.random() * 900000)}`;
 };
 
-const UpdateProduct = () => {
+const UpdateProduct = ({ slug }: { slug: string }) => {
   const router = useRouter();
-  const { slug } = useParams();
 
   const [updateProduct, { isLoading }] = useUpdateProductMutation();
   const { data: user } = useGetMeQuery(undefined);
@@ -116,6 +148,7 @@ const UpdateProduct = () => {
 
   // Watch adjustStock for real-time calculation
   const adjustStockValue = watch("adjustStock") || 0;
+  const warrantyEnabled = watch("warrantyEnabled");
   const currentStock = Number(productData?.data?.availableStock || 0);
   const adjustValue = Number(adjustStockValue || 0);
   const newStock = currentStock + adjustValue;
@@ -136,15 +169,25 @@ const UpdateProduct = () => {
       const p = productData.data;
 
       reset({
-        title: p.title,
-        brand: getId(p?.brand),
-        category: getId(p.category),
-        buyingPrice: p.buyingPrice,
-        price: p.price,
-        discountPrice: p.discountPrice,
-        totalAddedStock: p.totalAddedStock,
-        status: p.status,
-        description: p.description,
+        title: p.title ?? "",
+        brand: getId(p?.brand ?? ""),
+        category: getId(p.category ?? ""),
+        buyingPrice: p.buyingPrice ?? 0,
+        price: p.price ?? 0,
+        discountPrice: p.discountPrice ?? 0,
+        totalAddedStock: p.totalAddedStock ?? 0,
+        status: p.status ?? "",
+        description: p.description ?? "",
+        warrantyEnabled: p.warrantyEnabled || false,
+        warrantyType: p.warrantyType || undefined,
+
+        warrantyStartDate: p.warrantyStartDate
+          ? new Date(p.warrantyStartDate)
+          : undefined,
+
+        warrantyEndDate: p.warrantyEndDate
+          ? new Date(p.warrantyEndDate)
+          : undefined,
         barcode: p.barcode || "",
         isCusFavorite: p?.isCusFavorite === true ? "true" : "false",
       });
@@ -226,17 +269,24 @@ const UpdateProduct = () => {
 
       const payloadData: any = {
         title: data.title,
-        brand: data.brand,
-        category: data.category,
-        price: data.price,
-        discountPrice: data.discountPrice,
+        brand: data.brand ?? "",
+        category: data.category ?? "",
+        price: data.price ?? 0,
+        discountPrice: data.discountPrice ?? 0,
         status: data.status,
-        description: data.description,
+        description: data.description ?? "",
         isCusFavorite: data.isCusFavorite === "true",
         images: allImages,
         barcode: data.barcode,
       };
 
+      payloadData.warrantyEnabled = data.warrantyEnabled;
+
+      if (data.warrantyEnabled) {
+        payloadData.warrantyType = data.warrantyType;
+        payloadData.warrantyStartDate = data.warrantyStartDate;
+        payloadData.warrantyEndDate = data.warrantyEndDate;
+      }
       // Add stock adjustment if provided
       // if (data.adjustStock && data.adjustStock !== 0) {
       //   const currentStock = Number(productData?.data?.availableStock || 0);
@@ -267,7 +317,7 @@ const UpdateProduct = () => {
       if (res?.success) {
         setUploadProgress(100);
         toast.success("Product updated successfully!");
-        router.push("/staff/dashboard/admin/product-management");
+        router.push("/staff/dashboard/product-management");
       }
     } catch (err: any) {
       console.error("Update product error:", err);
@@ -502,23 +552,128 @@ const UpdateProduct = () => {
               </div>
             )}
 
-             <div className="space-y-2">
-                <Label>Barcode</Label>
+            <div className="rounded-lg border p-4 space-y-4">
+              <h3 className="font-semibold">Warranty / Guarantee</h3>
 
-                <div className="flex gap-2">
-                  <Input placeholder="Barcode" {...register("barcode")} />
+              <div className="flex items-center gap-3">
+                <Controller
+                  control={control}
+                  name="warrantyEnabled"
+                  render={({ field }) => (
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  )}
+                />
 
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setValue("barcode", generateBarcode())}
-                  >
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    Generate
-                  </Button>
-                </div>
+                <Label>Enable Warranty / Guarantee</Label>
               </div>
 
+              {warrantyEnabled && (
+                <>
+                  <Controller
+                    control={control}
+                    name="warrantyType"
+                    render={({ field }) => (
+                      <Select onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Type" />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                          <SelectItem value="WARRANTY">Warranty</SelectItem>
+
+                          <SelectItem value="GUARANTEE">Guarantee</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {/* Start Date */}
+                    <Controller
+                      control={control}
+                      name="warrantyStartDate"
+                      render={({ field }) => (
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="justify-start w-full"
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+
+                              {field.value
+                                ? format(field.value, "PPP")
+                                : "Warranty Start Date"}
+                            </Button>
+                          </PopoverTrigger>
+
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      )}
+                    />
+                    {/* End Date */}
+                    <Controller
+                      control={control}
+                      name="warrantyEndDate"
+                      render={({ field }) => (
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="justify-start w-full"
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+
+                              {field.value
+                                ? format(field.value, "PPP")
+                                : "Warranty End Date"}
+                            </Button>
+                          </PopoverTrigger>
+
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      )}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Barcode</Label>
+
+              <div className="flex gap-2">
+                <Input placeholder="Barcode" {...register("barcode")} />
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setValue("barcode", generateBarcode())}
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Generate
+                </Button>
+              </div>
+            </div>
 
             {/* DESCRIPTION */}
             <div className={"space-y-2"}>

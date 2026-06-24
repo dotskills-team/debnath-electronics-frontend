@@ -210,7 +210,6 @@ export default function POSManagement() {
     orderType: OrderType,
     totalAmount: number,
     discountAmount: number,
-    deliveryCharge: number,
   ) => {
     try {
       if (!user?.data) {
@@ -235,7 +234,6 @@ export default function POSManagement() {
 
       const res = await createOrder({
         orderType: "POS",
-        paymentMethod: "COD",
         products: cartItems.map((item) => ({
           product: item.product._id ?? "",
           title: item.product?.title || "Unknown Product",
@@ -248,14 +246,12 @@ export default function POSManagement() {
             : undefined,
         total: totalAmount,
         discount: discountAmount ?? 0,
-        shippingCost: orderType === "DELIVERY" ? deliveryCharge : 0,
         billingDetails: {
           fullName: customerData.name,
-          email: customerData.email,
-          phone: customerData.phone,
-          address: customerData.address,
+          email: customerData.email || "",
+          phone: customerData.phone || "",
+          address: customerData.address || "",
         },
-        note: customerData.notes ?? "",
         seller: user?.data?._id,
         advanceDetails,
       }).unwrap();

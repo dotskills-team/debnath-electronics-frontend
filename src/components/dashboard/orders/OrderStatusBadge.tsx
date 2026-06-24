@@ -28,6 +28,8 @@ const orderStatusStyles: Record<string, string> = {
     "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800",
   COMPLETED:
     "bg-lime-100 text-lime-700 border-lime-200 dark:bg-lime-900/30 dark:text-lime-400 dark:border-lime-800",
+  SOLD:
+    "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800",
   CANCELLED:
     "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800",
   PARTIAL:
@@ -73,6 +75,7 @@ const fallbackStyle =
 const orderIcons: Record<string, React.ReactNode> = {
   CONFIRMED: <CheckCircle className="h-3 w-3" />,
   PENDING: <Clock className="h-3 w-3" />,
+  SOLD: <CheckCircle className="h-3 w-3" />,
   COMPLETED: <CheckCircle className="h-3 w-3" />,
   CANCELLED: <XCircle className="h-3 w-3" />,
   PARTIAL: <AlertCircle className="h-3 w-3" />,

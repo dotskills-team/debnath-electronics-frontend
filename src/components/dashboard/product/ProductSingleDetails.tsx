@@ -30,6 +30,7 @@ import {
   Barcode as BarcodeIcon,
   Loader2,
   ScanLine,
+  ShieldCheck,
 } from "lucide-react";
 import {
   Breadcrumb,
@@ -43,6 +44,7 @@ import Link from "next/link";
 import ProductGallery from "@/components/shared/ProductGallery";
 import { useGetMeQuery } from "@/redux/features/user/user.api";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 function useBarcodeActions(barcodeValue: string | undefined) {
   const barcodeRef = useRef<HTMLDivElement>(null);
@@ -60,102 +62,104 @@ function useBarcodeActions(barcodeValue: string | undefined) {
     }
   }, [barcodeValue]);
 
-//   const printBarcode = useCallback(() => {
-//     if (!barcodeValue || !barcodeRef.current) return;
+  //   const printBarcode = useCallback(() => {
+  //     if (!barcodeValue || !barcodeRef.current) return;
 
-//     const svgEl = barcodeRef.current.querySelector("svg");
-//     if (!svgEl) return;
+  //     const svgEl = barcodeRef.current.querySelector("svg");
+  //     if (!svgEl) return;
 
-//     const svgData = new XMLSerializer().serializeToString(svgEl);
-//     const printWindow = window.open("", "_blank", "width=500,height=400");
-//     if (!printWindow) {
-//       toast.error("Allow popups to print the barcode");
-//       return;
-//     }
+  //     const svgData = new XMLSerializer().serializeToString(svgEl);
+  //     const printWindow = window.open("", "_blank", "width=500,height=400");
+  //     if (!printWindow) {
+  //       toast.error("Allow popups to print the barcode");
+  //       return;
+  //     }
 
-//     printWindow.document.write(`
-// <!DOCTYPE html>
-// <html>
-// <head>
-// <title>${barcodeValue}</title>
+  //     printWindow.document.write(`
+  // <!DOCTYPE html>
+  // <html>
+  // <head>
+  // <title>${barcodeValue}</title>
 
-// <style>
-// *{
-//   margin:0;
-//   padding:0;
-//   box-sizing:border-box;
-// }
+  // <style>
+  // *{
+  //   margin:0;
+  //   padding:0;
+  //   box-sizing:border-box;
+  // }
 
-// html,body{
-//   width:320px;
-//   margin: 0 auto;
-//   background:#fff;
-//   overflow:hidden;
-// }
+  // html,body{
+  //   width:320px;
+  //   margin: 0 auto;
+  //   background:#fff;
+  //   overflow:hidden;
+  // }
 
-// .barcode-wrapper{
-//   width:320px;
-//   display:flex;
-//   flex-direction:column;
-//   align-items:center;
-//   justify-content:center;
-//   padding:4px;
-// }
+  // .barcode-wrapper{
+  //   width:320px;
+  //   display:flex;
+  //   flex-direction:column;
+  //   align-items:center;
+  //   justify-content:center;
+  //   padding:4px;
+  // }
 
-// .barcode-wrapper svg{
-//   width:320px !important;
-//   height:80px !important;
-// }
+  // .barcode-wrapper svg{
+  //   width:320px !important;
+  //   height:80px !important;
+  // }
 
-// @page{
-//   margin:0;
-//   size:auto;
-// }
+  // @page{
+  //   margin:0;
+  //   size:auto;
+  // }
 
-// </style>
-// </head>
+  // </style>
+  // </head>
 
-// <body>
-//   <div class="barcode-wrapper">
-//     ${svgData}
-//   </div>
+  // <body>
+  //   <div class="barcode-wrapper">
+  //     ${svgData}
+  //   </div>
 
-//   <script>
-//     window.onload = function(){
-//       window.print();
-//       window.close();
-//     }
-//   <\/script>
-// </body>
-// </html>
-// `);
-//     printWindow.document.close();
-//   }, [barcodeValue]);
+  //   <script>
+  //     window.onload = function(){
+  //       window.print();
+  //       window.close();
+  //     }
+  //   <\/script>
+  // </body>
+  // </html>
+  // `);
+  //     printWindow.document.close();
+  //   }, [barcodeValue]);
 
-const printBarcode = useCallback(() => {
-  if (!barcodeValue || !barcodeRef.current) return;
+  const printBarcode = useCallback(() => {
+    if (!barcodeValue || !barcodeRef.current) return;
 
-  const svgEl = barcodeRef.current.querySelector("svg");
-  if (!svgEl) return;
+    const svgEl = barcodeRef.current.querySelector("svg");
+    if (!svgEl) return;
 
-  const LABEL_W = "1.5in";
-  const LABEL_H = "1in";
+    const LABEL_W = "1.5in";
+    const LABEL_H = "1in";
 
+    const svgClone = svgEl.cloneNode(true) as SVGElement;
+    svgClone.setAttribute("width", "1.5in");
+    svgClone.setAttribute("height", "0.75in");
+    svgClone.setAttribute(
+      "viewBox",
+      `0 0 ${svgEl.viewBox.baseVal.width} ${svgEl.viewBox.baseVal.height}`,
+    );
 
-  const svgClone = svgEl.cloneNode(true) as SVGElement;
-  svgClone.setAttribute("width", "1.5in");
-  svgClone.setAttribute("height", "0.75in"); 
-  svgClone.setAttribute("viewBox", `0 0 ${svgEl.viewBox.baseVal.width} ${svgEl.viewBox.baseVal.height}`);
+    const svgData = new XMLSerializer().serializeToString(svgClone);
 
-  const svgData = new XMLSerializer().serializeToString(svgClone);
+    const printWindow = window.open("", "_blank", "width=300,height=200");
+    if (!printWindow) {
+      toast.error("Allow popups to print the barcode");
+      return;
+    }
 
-  const printWindow = window.open("", "_blank", "width=300,height=200");
-  if (!printWindow) {
-    toast.error("Allow popups to print the barcode");
-    return;
-  }
-
-  printWindow.document.write(`
+    printWindow.document.write(`
 <!DOCTYPE html>
 <html>
 <head>
@@ -203,8 +207,8 @@ const printBarcode = useCallback(() => {
 </body>
 </html>
 `);
-  printWindow.document.close();
-}, [barcodeValue]);
+    printWindow.document.close();
+  }, [barcodeValue]);
 
   const downloadBarcode = useCallback(() => {
     if (!barcodeValue || !barcodeRef.current) return;
@@ -260,9 +264,13 @@ export default function ProductSingleDetails() {
   const { data: user } = useGetMeQuery(undefined);
   const [assignBarcodes, { isLoading: isGenerating }] =
     useAssignMissingBarcodesMutation();
+    const product: any = data?.data;
+    const hasWarranty =
+  product?.warrantyEnabled &&
+  product?.warrantyStartDate &&
+  product?.warrantyEndDate;
 
   const role = user?.data?.role;
-  const product: any = data?.data;
 
   const { barcodeRef, copied, copyBarcode, printBarcode, downloadBarcode } =
     useBarcodeActions(product?.barcode);
@@ -496,23 +504,26 @@ export default function ProductSingleDetails() {
                       />
                     </div> */}
 
-
-<div
-  ref={barcodeRef}
-  className="flex justify-center items-center bg-white"
-  style={{ width: "320px", height: "90px", margin: "0 auto" }}
->
-  <Barcode
-    value={product.barcode}
-    format="CODE128"
-    width={1.5} 
-    height={55}  
-    displayValue
-    margin={2}
-    fontSize={11} 
-    textMargin={3}
-  />
-</div>
+                    <div
+                      ref={barcodeRef}
+                      className="flex justify-center items-center bg-white"
+                      style={{
+                        width: "320px",
+                        height: "90px",
+                        margin: "0 auto",
+                      }}
+                    >
+                      <Barcode
+                        value={product.barcode}
+                        format="CODE128"
+                        width={1.5}
+                        height={55}
+                        displayValue
+                        margin={2}
+                        fontSize={11}
+                        textMargin={3}
+                      />
+                    </div>
 
                     {/* Barcode value pill */}
                     {/* <div className="flex items-center justify-center">
@@ -578,6 +589,33 @@ export default function ProductSingleDetails() {
                 )}
               </CardContent>
             </Card>
+
+            {hasWarranty && (
+              <Card>
+                <CardContent className="pt-4">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-5 h-5 text-green-600" />
+
+                    <div>
+                      <p className="font-semibold">{product.warrantyType}</p>
+
+                      <p className="text-sm text-muted-foreground">
+                        Valid From{" "}
+                        {format(
+                          new Date(product.warrantyStartDate),
+                          "dd MMM yyyy",
+                        )}{" "}
+                        to{" "}
+                        {format(
+                          new Date(product.warrantyEndDate),
+                          "dd MMM yyyy",
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* ── Key Info Table ── */}
             <Card className="py-0 overflow-hidden">

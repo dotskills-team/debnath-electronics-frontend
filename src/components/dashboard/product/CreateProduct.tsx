@@ -22,7 +22,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 
-import { Upload, X, Loader2, RefreshCw } from "lucide-react";
+import { Upload, X, Loader2, RefreshCw, CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import { uploadMultipleToCloudinary } from "@/utils/cloudinary";
 
@@ -33,6 +33,14 @@ import { useGetAllBrandsQuery } from "@/redux/features/brand/brand.api";
 import { IBrand, ICategory } from "@/types";
 import BreadCrumbPage from "@/components/shared/BreadCrumbPage";
 import { useGetMeQuery } from "@/redux/features/user/user.api";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 // 🔥 Editor (No SSR)
 const ProductEditor = dynamic(
@@ -41,7 +49,7 @@ const ProductEditor = dynamic(
 );
 
 export const generateBarcode = () => {
-  return `FF${Math.floor(100000 + Math.random() * 900000)}`;
+  return `DE${Math.floor(100000 + Math.random() * 900000)}`;
 };
 
 // ENUM
@@ -52,19 +60,45 @@ export enum ProductStatus {
 
 // VALIDATION
 const schema = z.object({
-  title: z.string().min(2, "Title must be at least 2 characters"),
-  brand: z.string().min(1, "Brand is required"),
-  category: z.string().min(1, "Category is required"),
-  buyingPrice: z.preprocess((val) => Number(val), z.number().optional()),
-  price: z.preprocess((val) => Number(val), z.number().min(0)),
-  availableStock: z.preprocess((val) => Number(val), z.number().min(0)),
-  discountPrice: z.preprocess(
-    (val) => (val === "" ? undefined : Number(val)),
+  title: z.string().min(2, "Title is required"),
+
+  brand: z.string().optional(),
+
+  category: z.string().optional(),
+
+  buyingPrice: z.preprocess(
+    (v) => (v === "" || v === undefined ? undefined : Number(v)),
     z.number().optional(),
   ),
-  status: z.nativeEnum(ProductStatus),
-  description: z.string().min(10, "Description required"),
+
+  price: z.preprocess(
+    (v) => (v === "" || v === undefined ? 0 : Number(v)),
+    z.number().optional(),
+  ),
+
+  availableStock: z.preprocess(
+    (v) => (v === "" || v === undefined ? 0 : Number(v)),
+    z.number().optional(),
+  ),
+
+  discountPrice: z.preprocess(
+    (v) => (v === "" || v === undefined ? undefined : Number(v)),
+    z.number().optional(),
+  ),
+
+  status: z.nativeEnum(ProductStatus).optional(),
+
+  description: z.string().optional(),
+  warrantyEnabled: z.boolean().optional(),
+
+  warrantyType: z.string().optional(),
+
+  warrantyStartDate: z.date().optional(),
+
+  warrantyEndDate: z.date().optional(),
+
   images: z.array(z.instanceof(File)).min(1, "At least one image required"),
+
   barcode: z.string().optional(),
 });
 
@@ -93,6 +127,7 @@ export default function CreateProduct() {
     resolver: zodResolver(schema) as any,
     defaultValues: {
       status: ProductStatus.ACTIVE,
+      warrantyEnabled: false,
     },
   });
 
@@ -100,6 +135,7 @@ export default function CreateProduct() {
   const [uploadingImages, setUploadingImages] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const images = watch("images");
+  const warrantyEnabled = watch("warrantyEnabled");
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -155,6 +191,13 @@ export default function CreateProduct() {
         barcode: data.barcode,
       };
 
+      if (data.warrantyEnabled) {
+        payloadData.warrantyEnabled = true;
+        payloadData.warrantyType = data.warrantyType;
+        payloadData.warrantyStartDate = data.warrantyStartDate;
+        payloadData.warrantyEndDate = data.warrantyEndDate;
+      }
+
       if (role !== "MANAGER") {
         payloadData.buyingPrice = data.buyingPrice;
         payloadData.availableStock = data.availableStock;
@@ -169,7 +212,7 @@ export default function CreateProduct() {
       if (res?.success) {
         setUploadProgress(100);
         toast.success("Product created successfully!");
-        router.push("/staff/dashboard/admin/product-management");
+        router.push("/staff/dashboard/product-management");
       }
     } catch (err: any) {
       console.error("Create product error:", err);
@@ -185,7 +228,7 @@ export default function CreateProduct() {
         <div className={"mb-6"}>
           <BreadCrumbPage
             BreadcrumbTitle={"Product Management"}
-            BreadCrumbLink={"/staff/dashboard/admin/product-management"}
+            BreadCrumbLink={"/staff/dashboard/product-management"}
             BreadCrumbPage={"Create Product"}
           />
         </div>
@@ -302,6 +345,112 @@ export default function CreateProduct() {
                       {errors.availableStock?.message}
                     </p>
                   </div>
+                )}
+              </div>
+
+              <div className="rounded-lg border p-4 space-y-4">
+                <h3 className="font-semibold">Warranty / Guarantee</h3>
+
+                <div className="flex items-center gap-3">
+                  <Controller
+                    control={control}
+                    name="warrantyEnabled"
+                    render={({ field }) => (
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    )}
+                  />
+
+                  <Label>Enable Warranty / Guarantee</Label>
+                </div>
+
+                {warrantyEnabled && (
+                  <>
+                    <Controller
+                      control={control}
+                      name="warrantyType"
+                      render={({ field }) => (
+                        <Select onValueChange={field.onChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Type" />
+                          </SelectTrigger>
+
+                          <SelectContent>
+                            <SelectItem value="WARRANTY">Warranty</SelectItem>
+
+                            <SelectItem value="GUARANTEE">Guarantee</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {/* Start Date */}
+                      <Controller
+                        control={control}
+                        name="warrantyStartDate"
+                        render={({ field }) => (
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="justify-start w-full"
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+
+                                {field.value
+                                  ? format(field.value, "PPP")
+                                  : "Warranty Start Date"}
+                              </Button>
+                            </PopoverTrigger>
+
+                            <PopoverContent className="w-auto p-0">
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        )}
+                      />
+                      {/* End Date */}
+                      <Controller
+                        control={control}
+                        name="warrantyEndDate"
+                        render={({ field }) => (
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="justify-start w-full"
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+
+                                {field.value
+                                  ? format(field.value, "PPP")
+                                  : "Warranty End Date"}
+                              </Button>
+                            </PopoverTrigger>
+
+                            <PopoverContent className="w-auto p-0">
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        )}
+                      />
+                    </div>
+                  </>
                 )}
               </div>
 

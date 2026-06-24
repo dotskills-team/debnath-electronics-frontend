@@ -176,7 +176,7 @@ export interface IUser {
   permissions?: IPermission[];
   address: string;
   status?: string;
-   subscriptionPlan?: {
+  subscriptionPlan?: {
     _id: string;
     name: string;
     price: number;
@@ -243,6 +243,13 @@ export interface IProduct {
   totalRevenue: number;
   isCusFavorite: boolean;
   isFeatured: boolean;
+  warrantyEnabled?: boolean;
+
+  warrantyType?: "WARRANTY" | "GUARANTEE";
+
+  warrantyStartDate?: Date;
+
+  warrantyEndDate?: Date;
   brand: {
     _id: string;
     title: string;

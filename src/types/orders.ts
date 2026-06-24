@@ -13,6 +13,7 @@ export interface GetQueryParams {
 
 export type OrderStatus =
   | "PENDING"
+  | "SOLD"
   | "CONFIRMED"
   | "CANCELLED"
   | "NOT_SHIPPED"

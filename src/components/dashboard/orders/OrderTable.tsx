@@ -159,7 +159,7 @@ export function OrderTable({
                 <TableCell>
                   <span className="text-xs font-medium">
                     {order?.transactionId && (
-                      <span className="text-green-600">COD</span>
+                      <span className="text-green-600 uppercase">{order?.advanceDetails?.option ?? "COD"}</span>
                     )}
                   </span>
                 </TableCell>

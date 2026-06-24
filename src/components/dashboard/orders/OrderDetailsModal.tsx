@@ -17,17 +17,15 @@ import {
   Phone,
   MapPin,
   Clock,
-  Car,
   Zap,
-  Wallet,
-  Banknote,
   User2,
-  MinusCircle,
 } from "lucide-react";
 import { format } from "date-fns";
 import type { Order } from "@/types/orders";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useGetCourierByOrderIdQuery } from "@/lib/hooks";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 interface OrderDetailsModalProps {
   order: Order | null;
@@ -45,6 +43,11 @@ export function OrderDetailsModal({
   });
 
   const courier = courierRes?.data;
+  const advanceAmount = order?.advanceDetails?.amount || 0;
+  const totalAmount = order?.total || 0;
+  const dueAmount = Math.max(totalAmount - advanceAmount, 0);
+  const paymentMethod =
+    order?.paymentMethod || order?.advanceDetails?.option || "Cash on Delivery";
   // console.log(courier);
 
   if (!order) return null;
@@ -200,70 +203,79 @@ export function OrderDetailsModal({
               </div>
             </div>
 
-            {/* delivery charge */}
-            <div className="space-y-3 rounded-lg border bg-muted/50 p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Car className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Delivery Charge</span>
-                </div>
-                <p className="text-xl font-bold">৳{order?.shippingCost}</p>
-              </div>
+            <Card className="border-amber-200">
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <h3 className="font-semibold">Financial Summary</h3>
 
-              {(order?.discount ?? 0) > 0 && (
-               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <MinusCircle className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Discount</span>
-                </div>
-                <p className="text-xl text-gray-700 font-semibold">- ৳{order?.discount}</p>
-              </div>
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span>৳{order?.subTotal || totalAmount}</span>
+                  </div>
 
-              )}
-            </div>
+                  {(order.discount ?? 0) > 0 && (
+                    <div className="flex justify-between text-red-500">
+                      <span>Discount</span>
+                      <span>-৳{order.discount}</span>
+                    </div>
+                  )}
 
-            <div className="space-y-3 rounded-lg border p-4 bg-white dark:bg-gray-900">
-              <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                Advance Payment
-              </p>
+                  {(order.shippingCost ?? 0) > 0 && (
+                    <div className="flex justify-between">
+                      <span>Delivery Charge</span>
+                      <span>৳{order.shippingCost}</span>
+                    </div>
+                  )}
 
-              <div className="flex items-center justify-between space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                <p className="flex items-center gap-2">
-                  <Wallet className="w-4 h-4 text-amber-500" />
-                  <span className="font-medium">Method:</span>
-                  <span className="capitalize">
-                    {order?.advanceDetails?.option || "N/A"}
-                  </span>
-                </p>
+                  <Separator />
 
-                {order?.advanceDetails?.amount > 0 && (
-                  <p className="flex items-center gap-2">
-                    <Banknote className="w-4 h-4 text-green-500" />
-                    <span className="font-medium">Amount:</span>
+                  <div className="flex justify-between">
+                    <span>Payment Method</span>
+                    <Badge variant="outline">{paymentMethod}</Badge>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span>Paid Amount</span>
                     <span className="font-semibold text-green-600">
-                      ৳{order?.advanceDetails?.amount ?? 0}
+                      ৳{advanceAmount.toFixed(2)}
                     </span>
-                  </p>
-                )}
-              </div>
-            </div>
+                  </div>
 
-            {/* Order Summary */}
-            <div className="space-y-3 rounded-lg border bg-muted/50 p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">Total Amount</span>
+                  <div className="flex justify-between">
+                    <span>Due Amount</span>
+                    <span
+                      className={
+                        dueAmount > 0
+                          ? "font-semibold text-red-600"
+                          : "font-semibold text-green-600"
+                      }
+                    >
+                      ৳{dueAmount.toFixed(2)}
+                    </span>
+                  </div>
+
+                  <Separator />
+
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Grand Total</span>
+
+                    <span className="font-bold text-xl">
+                      ৳{totalAmount.toFixed(2)}
+                    </span>
+                  </div>
+
+                  <Badge
+                    className={
+                      dueAmount > 0
+                        ? "bg-orange-100 text-orange-700"
+                        : "bg-green-100 text-green-700"
+                    }
+                  >
+                    {dueAmount > 0 ? "Partially Paid" : "Fully Paid"}
+                  </Badge>
                 </div>
-                <p className="text-xl font-bold">৳{order?.total?.toFixed(2)}</p>
-              </div>
-
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Clock className="h-3 w-3" />
-                <span>
-                  Updated: {new Date(order.updatedAt).toLocaleString()}
-                </span>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
             {courier && <CourierInfo courier={courier} />}
           </div>

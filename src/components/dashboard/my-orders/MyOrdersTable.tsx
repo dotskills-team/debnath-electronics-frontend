@@ -75,6 +75,11 @@ const ORDER_STATUS: Record<
     cls: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800",
     icon: CheckCircle2,
   },
+  SOLD: {
+    label: "Sold",
+    cls: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800",
+    icon: CheckCircle2,
+  },
   PROCESSING: {
     label: "Processing",
     cls: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800",
@@ -256,7 +261,7 @@ export function MyOrdersTable({
                 <TableCell>
                   <span className="text-xs font-medium">
                     {order?.transactionId && (
-                      <span className="text-green-600">COD</span>
+                      <span className="text-green-600 uppercase">{order?.advanceDetails?.option ?? "COD"}</span>
                     )}
                   </span>
                 </TableCell>

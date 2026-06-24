@@ -44,7 +44,7 @@ export enum CategoryStatus {
 
 const categorySchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters"),
-  description: z.string().min(5, "Description must be at least 5 characters"),
+  description: z.string().optional(),
   showOrder: z.preprocess(
     (val) => (val !== undefined && val !== "" ? Number(val) : undefined),
     z
@@ -53,7 +53,7 @@ const categorySchema = z.object({
       .positive("Display order must be a positive number")
       .optional(),
   ),
-  status: z.nativeEnum(CategoryStatus, { message: "Please select a status" }),
+  status: z.nativeEnum(CategoryStatus).optional(),
 });
 
 type CategoryFormValues = z.infer<typeof categorySchema>;
@@ -111,18 +111,15 @@ export default function CreateCategoryModal() {
   };
 
   const onSubmit = async (data: CategoryFormValues) => {
-    if (!imageFile) {
-      setImageError("Category image is required");
-      return;
-    }
-    setImageError(null);
-    try {
+      try {
       const formData = new FormData();
       formData.append("title", data.title);
-      formData.append("description", data.description);
-      formData.append("status", data.status);
+      formData.append("description", data?.description ?? "");
+      formData.append("status", data?.status ?? "");
       formData.append("showOrder", String(data.showOrder ?? 1));
-      formData.append("image", imageFile);
+     if(imageFile){
+       formData.append("image", imageFile);
+     }
 
       const res = await createCategory(formData).unwrap();
       if (res.success) {
@@ -194,7 +191,7 @@ export default function CreateCategoryModal() {
               htmlFor="description"
               className=" text-xs font-semibold tracking-widest uppercase"
             >
-              Description
+              Description (optional)
             </Label>
             <Textarea
               id="description"
