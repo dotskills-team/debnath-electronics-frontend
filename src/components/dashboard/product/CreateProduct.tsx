@@ -97,7 +97,7 @@ const schema = z.object({
 
   warrantyEndDate: z.date().optional(),
 
-  images: z.array(z.instanceof(File)).min(1, "At least one image required"),
+  images: z.array(z.instanceof(File)).optional(),
 
   barcode: z.string().optional(),
 });
@@ -173,7 +173,7 @@ export default function CreateProduct() {
       setUploadProgress(0);
 
       // Upload images to Cloudinary
-      const imageUrls = await uploadMultipleToCloudinary(data.images);
+      const imageUrls = await uploadMultipleToCloudinary(data?.images ?? []);
       setUploadProgress(50);
 
       const formData = new FormData();
