@@ -196,9 +196,9 @@ export default function RegisterModal({ refetch }: any) {
       }else{
         toast.error(res.message || "Failed to account register!");
       }
-    } catch (error) {
-      console.error(error);
-      toast.error("Registration failed. Please try again.");
+    } catch (error: any) {
+      // console.error(error);
+      toast.error(error?.data?.message || "Registration failed. Please try again.");
       setIsLoading(false);
     } finally {
       setIsLoading(false);
