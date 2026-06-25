@@ -194,8 +194,9 @@ export function MyOrdersTable({
               "Customer",
               "Total",
               "Order Status",
+              "Payment Status",
               "Delivery Status",
-              "Courier",
+              // "Courier",
               "Date",
               "Actions",
             ].map((h) => (
@@ -261,7 +262,7 @@ export function MyOrdersTable({
                 <TableCell>
                   <span className="text-xs font-medium">
                     {order?.transactionId && (
-                      <span className="text-green-600 uppercase">{order?.advanceDetails?.option ?? "COD"}</span>
+                      <span className="text-green-600 uppercase">{order?.paymentDetails?.paymentMethod ?? "CASH"}</span>
                     )}
                   </span>
                 </TableCell>
@@ -301,6 +302,17 @@ export function MyOrdersTable({
                   </Badge>
                 </TableCell>
 
+                {/* Payment Status */}
+                <TableCell>
+                 {order?.paymentDetails?.paymentStatus ? (
+                    <OrderStatusBadge
+                      status={order?.paymentDetails?.paymentStatus}
+                      type="paymentStatus"
+                    />
+                  ) : (
+                    "-"
+                  )}
+                </TableCell>
                 {/* Delivery */}
                 <TableCell>
                   {order.orderStatus === "CONFIRMED" && !courier ? (
@@ -317,7 +329,7 @@ export function MyOrdersTable({
                     "-"
                   )}
                 </TableCell>
-                <TableCell>
+                {/* <TableCell>
                   {courier ? (
                     <div className="flex items-center gap-1 text-xs text-blue-600">
                       <Truck size={14} />
@@ -330,7 +342,7 @@ export function MyOrdersTable({
                   ) : (
                     <span className="text-xs text-muted-foreground">-</span>
                   )}
-                </TableCell>
+                </TableCell> */}
 
                 {/* Date */}
                 <TableCell className="hidden lg:table-cell">

@@ -106,6 +106,7 @@ export default function OrdersManagement() {
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState("");
 
   const queryArgs = {
     page,
@@ -113,6 +114,7 @@ export default function OrdersManagement() {
     dateType,
     ...(debouncedSearch && { searchTerm: debouncedSearch }),
     ...(status && { orderStatus: status }),
+    ...(paymentStatus && { paymentStatus }),
     ...(deliveryStatus && { deliveryStatus }),
     ...(dateFilter.from && {
       "updatedAt[gte]": format(dateFilter.from, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"),
@@ -133,7 +135,7 @@ export default function OrdersManagement() {
       skip: activeTab !== "scheduled",
     });
 
-    const { data: noResponseOrdersData, isLoading: isNoResponseLoading } =
+  const { data: noResponseOrdersData, isLoading: isNoResponseLoading } =
     useGetAllNoResponseOrdersQuery({});
 
   const { data: HoldOrdersData, isLoading: isHoldLoading } =
@@ -169,6 +171,7 @@ export default function OrdersManagement() {
   const handleReset = () => {
     setStatus("");
     setDeliveryStatus("");
+    setPaymentStatus("");
     setDateFilter({ from: undefined, to: undefined });
     setDateType("created");
     setPage(1);
@@ -177,6 +180,11 @@ export default function OrdersManagement() {
   const handleViewInvoice = (order: Order) => {
     setInvoiceOrder(order);
     setInvoiceModalOpen(true);
+  };
+
+  const handlePaymentStatusChange = (value: string) => {
+    setPaymentStatus(value);
+    setPage(1);
   };
 
   const handlePartialUpdate = (order: Order) => {
@@ -394,23 +402,36 @@ export default function OrdersManagement() {
         ? (scheduledOrdersData?.data as Order[]) || []
         : (HoldOrdersData?.data as Order[]) || [];
 
- const isLoadingFinal = activeTab === "instant" ? isLoading : activeTab === "scheduled" ? isScheduledLoading : activeTab === "no-response" ? isNoResponseLoading : isHoldLoading;
+  const isLoadingFinal =
+    activeTab === "instant"
+      ? isLoading
+      : activeTab === "scheduled"
+        ? isScheduledLoading
+        : activeTab === "no-response"
+          ? isNoResponseLoading
+          : isHoldLoading;
 
-   const meta: any = activeTab === "instant" ? ordersData?.meta : activeTab === "scheduled" ? scheduledOrdersData?.meta : activeTab === "no-response" ? noResponseOrdersData?.meta : HoldOrdersData?.meta;
+  const meta: any =
+    activeTab === "instant"
+      ? ordersData?.meta
+      : activeTab === "scheduled"
+        ? scheduledOrdersData?.meta
+        : activeTab === "no-response"
+          ? noResponseOrdersData?.meta
+          : HoldOrdersData?.meta;
   const totalCount = meta?.total ?? 0;
   const totalPages = meta?.totalPage ?? Math.ceil(totalCount / limit);
   // const allOrders = (allOrdersData?.data as Order[]) || [];
 
   // console.log(ordersData?.stats);
 
-   const tabs: { value: ActiveTab; label: string; adminOnly?: boolean }[] = [
-    { value: "instant",     label: "Instant Orders" },
-    { value: "scheduled",   label: "Scheduled Orders" },
-    { value: "hold",        label: "Hold Orders" },
+  const tabs: { value: ActiveTab; label: string; adminOnly?: boolean }[] = [
+    { value: "instant", label: "Instant Orders" },
+    { value: "scheduled", label: "Scheduled Orders" },
+    { value: "hold", label: "Hold Orders" },
     { value: "no-response", label: "No Response" },
-    { value: "damaged",     label: "Damaged Products", adminOnly: true },
+    { value: "damaged", label: "Damaged Products", adminOnly: true },
   ];
- 
 
   return (
     <div className="min-h-screen space-y-6 bg-background p-4 md:p-8">
@@ -437,6 +458,8 @@ export default function OrdersManagement() {
         searchFilter={searchTerm}
         dateFilter={dateFilter}
         dateType={dateType}
+        paymentStatusFilter={paymentStatus}
+        onPaymentStatusChange={handlePaymentStatusChange}
         deliveryStatusFilter={deliveryStatus}
         onStatusChange={handleStatusChange}
         onDateTypeChange={(t) => {
@@ -460,15 +483,18 @@ export default function OrdersManagement() {
               return (
                 <button
                   key={tab.value}
-                  onClick={() => { setActiveTab(tab.value); setPage(1); }}
+                  onClick={() => {
+                    setActiveTab(tab.value);
+                    setPage(1);
+                  }}
                   className={cn(
                     "px-4 py-2 text-sm font-semibold rounded-md transition",
                     isActive
                       ? tab.value === "no-response"
                         ? "bg-rose-500 text-white"
                         : tab.value === "scheduled"
-                        ? "bg-blue-500 text-white"
-                        : "bg-amber-500 text-white"
+                          ? "bg-blue-500 text-white"
+                          : "bg-amber-500 text-white"
                       : "text-gray-500 hover:text-gray-900 dark:hover:text-white",
                   )}
                 >
@@ -542,7 +568,7 @@ export default function OrdersManagement() {
 
         {/* No response section */}
 
-         <TabsContent value="no-response">
+        <TabsContent value="no-response">
           <OrderTable
             orders={(noResponseOrdersData?.data as Order[]) || []}
             loading={isNoResponseLoading}

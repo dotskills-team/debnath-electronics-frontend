@@ -23,7 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useUpdateOrderMutation } from "@/redux/features/orders/ordersApi";
 import { useGetAllProductsQuery } from "@/redux/features/product/product.api";
@@ -34,9 +33,6 @@ import {
   Mail,
   Phone,
   MapPin,
-  CreditCard,
-  Truck,
-  StickyNote,
   Package,
   Search,
   X,
@@ -75,20 +71,16 @@ enum PayOption {
 
 const schema = z.object({
   fullName: z.string().min(2, "Name is required"),
-  email: z.string().email("Enter a valid email"),
-  phone: z.string().min(7, "Enter a valid phone number"),
-  address: z.string().min(3, "Address is required"),
-  paymentMethod: z.enum(["COD", "ONLINE", "CARD"]),
-  shippingCost: z.coerce.number().min(0, "Must be 0 or more"),
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
   discount: z.coerce.number().min(0).optional(),
-  note: z.string().optional(),
-
-  advanceDetails: z
-    .object({
-      option: z.string().optional(),
-      amount: z.coerce.number().optional(),
-    }).optional(),
-    
+  paymentDetails: z.object({
+    paymentStatus: z.enum(["PAID", "PARTIAL"]),
+    paymentMethod: z.enum(PayOption),
+    paidAmount: z.coerce.number().min(0),
+    dueAmount: z.coerce.number().min(0),
+  }),
 });
 type FormData = z.infer<typeof schema>;
 
@@ -208,17 +200,15 @@ export function EditOrderModal({
       email: "",
       phone: "",
       address: "",
-      paymentMethod: "COD",
-      shippingCost: 0,
       discount: 0,
-      note: "",
-      advanceDetails: {
-        option: "",
-        amount: 0,
+      paymentDetails: {
+        paymentStatus: "PAID",
+        paymentMethod: PayOption.CASH,
+        paidAmount: 0,
+        dueAmount: 0,
       },
     },
   });
-
 
   useEffect(() => {
     if (order && open) {
@@ -227,15 +217,18 @@ export function EditOrderModal({
         email: order.billingDetails?.email ?? "",
         phone: String(order.billingDetails?.phone ?? ""),
         address: order.billingDetails?.address ?? "",
-        paymentMethod:
-          ((order as any).paymentMethod as "COD" | "ONLINE" | "CARD") ?? "COD",
-        shippingCost: (order as any).shippingCost ?? 0,
         discount: (order as any).discount ?? 0,
-        note: (order as any).note ?? "",
 
-        advanceDetails: {
-          option: order?.advanceDetails?.option || "",
-          amount: order?.advanceDetails?.amount || 0,
+        paymentDetails: {
+          paymentStatus: order.paymentDetails?.paymentStatus ?? "PAID",
+
+          paymentMethod:
+            (order.paymentDetails?.paymentMethod as PayOption) ??
+            PayOption.CASH,
+
+          paidAmount: order.paymentDetails?.paidAmount ?? order.total,
+
+          dueAmount: order.paymentDetails?.dueAmount ?? 0,
         },
       });
 
@@ -275,7 +268,10 @@ export function EditOrderModal({
         {
           productId: product._id!,
           title: product.title,
-          price: product.discountPrice && product.discountPrice > 0 ? product.discountPrice : product.price,
+          price:
+            product.discountPrice && product.discountPrice > 0
+              ? product.discountPrice
+              : product.price,
           quantity: 1,
           image: product.images?.[0],
           availableStock: product.availableStock,
@@ -318,7 +314,29 @@ export function EditOrderModal({
   const alreadyInCart = (id: string) =>
     cartProducts.some((p) => p.productId === id);
   // const subtotal = cartProducts.reduce((s, p) => s + p.price * p.quantity, 0);
-  const subtotal = order?.total ?? 0;
+  const subtotal = cartProducts.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
+
+  const discount = watch("discount") || 0;
+
+  const paymentStatus = watch("paymentDetails.paymentStatus");
+
+  const paidAmount = watch("paymentDetails.paidAmount");
+
+  const grandTotal = Math.max(subtotal - discount, 0);
+
+  useEffect(() => {
+    const paid =
+      paymentStatus === "PAID"
+        ? grandTotal
+        : Math.min(Number(paidAmount || 0), grandTotal);
+
+    setValue("paymentDetails.paidAmount", paid);
+
+    setValue("paymentDetails.dueAmount", grandTotal - paid);
+  }, [paymentStatus, paidAmount, grandTotal, setValue]);
 
   const onSubmit = async (formData: FormData) => {
     if (!order?._id) return;
@@ -332,17 +350,20 @@ export function EditOrderModal({
         data: {
           billingDetails: {
             fullName: formData.fullName,
-            email: formData.email,
-            phone: formData.phone,
-            address: formData.address,
+            email: formData?.email ?? "",
+            phone: formData?.phone ?? "",
+            address: formData?.address ?? "",
           },
-          advanceDetails: {
-            option: formData.advanceDetails?.option || undefined,
-            amount: Number(formData.advanceDetails?.amount || 0),
+          paymentDetails: {
+            paymentStatus: formData.paymentDetails.paymentStatus,
+
+            paymentMethod: formData.paymentDetails.paymentMethod,
+
+            paidAmount: formData.paymentDetails.paidAmount,
+
+            dueAmount: formData.paymentDetails.dueAmount,
           },
-          paymentMethod: formData.paymentMethod,
-          shippingCost: formData.shippingCost ?? 0,
-          note: formData.note ?? "",
+          // note: formData.note ?? "",
           discount: formData.discount ?? 0,
           products: cartProducts.map((p) => ({
             product: p.productId,
@@ -369,7 +390,7 @@ export function EditOrderModal({
   // const discount = watch("discount") || 0;
   // const discountWithShipping = shipping - discount;
 
-  const total = Math.max(0, subtotal);
+  const total = grandTotal;
   if (!order) return null;
 
   return (
@@ -421,7 +442,7 @@ export function EditOrderModal({
                 <Input
                   placeholder="Search and add products…"
                   value={productSearch}
-                   onWheel={(e) => e.currentTarget.blur()}
+                  onWheel={(e) => e.currentTarget.blur()}
                   onChange={(e) => handleSearchChange(e.target.value)}
                   onFocus={() => {
                     setDropdownOpen(true);
@@ -494,10 +515,10 @@ export function EditOrderModal({
                               </p>
                               <p className="text-xs text-gray-400">
                                 ৳
-                                {(
-                                  product.discountPrice && product.discountPrice > 0
-                                    ? product.discountPrice
-                                    : product.price
+                                {(product.discountPrice &&
+                                product.discountPrice > 0
+                                  ? product.discountPrice
+                                  : product.price
                                 ).toFixed(2)}{" "}
                                 <span
                                   className={outOfStock ? "text-red-400" : ""}
@@ -575,7 +596,7 @@ export function EditOrderModal({
                         <input
                           type="number"
                           min={1}
-                           onWheel={(e) => e.currentTarget.blur()}
+                          onWheel={(e) => e.currentTarget.blur()}
                           value={item.quantity}
                           onChange={(e) =>
                             setQty(
@@ -629,7 +650,7 @@ export function EditOrderModal({
                   >
                     <Input
                       id="fullName"
-                       onWheel={(e) => e.currentTarget.blur()}
+                      onWheel={(e) => e.currentTarget.blur()}
                       placeholder="Customer name"
                       className={inputCls}
                       {...register("fullName")}
@@ -644,7 +665,7 @@ export function EditOrderModal({
                   >
                     <Input
                       id="email"
-                       onWheel={(e) => e.currentTarget.blur()}
+                      onWheel={(e) => e.currentTarget.blur()}
                       type="email"
                       placeholder="email@example.com"
                       className={inputCls}
@@ -663,39 +684,47 @@ export function EditOrderModal({
                     <Input
                       id="phone"
                       type="tel"
-                       onWheel={(e) => e.currentTarget.blur()}
+                      onWheel={(e) => e.currentTarget.blur()}
                       placeholder="01XXXXXXXXX"
                       className={inputCls}
                       {...register("phone")}
                     />
                   </FormField>
-                  <FormField
-                    icon={CreditCard}
-                    label="Payment Method"
-                    htmlFor="paymentMethod"
-                    error={errors.paymentMethod?.message}
-                  >
-                    <Select
-                      value={watch("paymentMethod")}
-                      onValueChange={(val) =>
-                        setValue("paymentMethod", val as any, {
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setValue("paymentDetails.paymentStatus", "PAID", {
                           shouldDirty: true,
                         })
                       }
+                      className={cn(
+                        "h-10 rounded-lg border",
+                        paymentStatus === "PAID"
+                          ? "border-green-500 bg-green-50 text-green-700"
+                          : "border-gray-200",
+                      )}
                     >
-                      <SelectTrigger
-                        id="paymentMethod"
-                        className={cn(inputCls, "w-full")}
-                      >
-                        <SelectValue placeholder="Select method" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="COD">Cash on Delivery</SelectItem>
-                        <SelectItem value="ONLINE">Online Payment</SelectItem>
-                        <SelectItem value="CARD">Card</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormField>
+                      Paid
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setValue("paymentDetails.paymentStatus", "PARTIAL", {
+                          shouldDirty: true,
+                        })
+                      }
+                      className={cn(
+                        "h-10 rounded-lg border",
+                        paymentStatus === "PARTIAL"
+                          ? "border-orange-500 bg-orange-50 text-orange-700"
+                          : "border-gray-200",
+                      )}
+                    >
+                      Due
+                    </button>
+                  </div>
                 </div>
                 <FormField
                   icon={MapPin}
@@ -706,36 +735,13 @@ export function EditOrderModal({
                 >
                   <Input
                     id="address"
-                     onWheel={(e) => e.currentTarget.blur()}
+                    onWheel={(e) => e.currentTarget.blur()}
                     placeholder="House, Road, Area, City"
                     className={inputCls}
                     {...register("address")}
                   />
                 </FormField>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <FormField
-                    icon={Truck}
-                    label="Shipping Cost"
-                    htmlFor="shippingCost"
-                    error={errors.shippingCost?.message}
-                  >
-                    <div className="relative">
-                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400 select-none">
-                        ৳
-                      </span>
-                      <Input
-                        id="shippingCost"
-                        type="number"
-                         onWheel={(e) => e.currentTarget.blur()}
-                        min="0"
-                        step="1"
-                        placeholder="0"
-                        className={cn(inputCls, "pl-7")}
-                        {...register("shippingCost")}
-                      />
-                    </div>
-                  </FormField>
-
                   <FormField icon={Tag} label="Discount" htmlFor="discount">
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
@@ -745,7 +751,7 @@ export function EditOrderModal({
                         id="discount"
                         type="number"
                         min="0"
-                         onWheel={(e) => e.currentTarget.blur()}
+                        onWheel={(e) => e.currentTarget.blur()}
                         step="1"
                         placeholder="0"
                         className={cn(inputCls, "pl-7")}
@@ -754,12 +760,11 @@ export function EditOrderModal({
                     </div>
                   </FormField>
                 </div>
-              
-                      
-                {/* advance payment */}
+
+                {/* payment */}
                 <div className="space-y-4 border rounded-xl p-4 bg-gray-50 dark:bg-gray-900">
                   <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                    Advance Payment
+                    Payment Information
                   </h3>
 
                   {/* Select Option */}
@@ -767,24 +772,27 @@ export function EditOrderModal({
                     <FormField
                       icon={Wallet}
                       label="Payment Option"
-                      htmlFor="payAdvance"
+                      htmlFor="payment"
                     >
                       <Controller
-                        name="advanceDetails.option"
+                        name="paymentDetails.paymentMethod"
                         control={control}
                         render={({ field }) => (
                           <Select
                             value={field.value || ""}
                             onValueChange={field.onChange}
                           >
-                            <SelectTrigger className={cn(inputCls, "w-full cursor-pointer")}>
-                              <SelectValue placeholder="Select payment option" />
+                            <SelectTrigger
+                              className={cn(inputCls, "w-full cursor-pointer")}
+                            >
+                              <SelectValue placeholder="Select payment method" />
                             </SelectTrigger>
 
                             <SelectContent className="py-2 capitalize">
                               {Object.values(PayOption).map((item) => (
                                 <SelectItem key={item} value={item}>
-                                  {item.charAt(0) + item.slice(1).replace("_", " ")}
+                                  {item.charAt(0) +
+                                    item.slice(1).replace("_", " ")}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -794,42 +802,41 @@ export function EditOrderModal({
                     </FormField>
                     <FormField
                       icon={Banknote}
-                      label="Advance Amount"
-                      htmlFor="advAmount"
+                      label="Paid Amount"
+                      htmlFor="paidAmount"
                     >
                       <Input
-                      type="number"
-                       onWheel={(e) => e.currentTarget.blur()}
-                      min={0}
-                      {...register("advanceDetails.amount")}
-                      placeholder="Enter advance amount"
-                      className="w-full h-10 rounded-md border px-3 text-sm bg-white dark:bg-gray-800"
-                    />
+                        type="number"
+                        min={0}
+                        max={grandTotal}
+                        disabled={paymentStatus === "PAID"}
+                        onWheel={(e) => e.currentTarget.blur()}
+                        {...register("paymentDetails.paidAmount")}
+                        placeholder="Enter paid amount"
+                        className="w-full h-10 rounded-md border px-3 text-sm bg-white dark:bg-gray-800"
+                      />
+                    </FormField>
+                    <FormField
+                      icon={Banknote}
+                      label="Due Amount"
+                      htmlFor="dueAmount"
+                    >
+                      <Input
+                        value={Math.max(
+                          grandTotal -
+                            (watch("paymentDetails.paidAmount") || 0),
+                          0,
+                        )}
+                        onWheel={(e) => e.currentTarget.blur()}
+                        min={0}
+                        {...register("paymentDetails.dueAmount")}
+                        placeholder="Enter due amount"
+                        className="w-full h-10 rounded-md border px-3 text-sm bg-white dark:bg-gray-800"
+                      />
                     </FormField>
                   </div>
                 </div>
-
-                {/* notes */}
-                <FormField
-                  icon={StickyNote}
-                  label="Order Notes"
-                  htmlFor="note"
-                  error={errors.note?.message}
-                >
-                  <Textarea
-                    id="note"
-                    placeholder="Internal notes…"
-                    rows={2}
-                    className={cn(
-                      inputCls,
-                      "h-auto resize-none leading-relaxed",
-                    )}
-                    {...register("note")}
-                  />
-                </FormField>
               </div>
-
-              
 
               <div className="flex mt-3 items-center justify-between rounded-xl border border-amber-200/60 bg-amber-50/40 px-4 py-2.5 dark:border-amber-900/30 dark:bg-amber-900/10">
                 <span className="text-xs font-semibold text-amber-700/70 dark:text-amber-500/70">

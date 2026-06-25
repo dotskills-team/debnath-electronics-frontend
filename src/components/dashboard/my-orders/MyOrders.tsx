@@ -938,8 +938,8 @@ const STATUS_OPTIONS: {
     chip: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800",
   },
   {
-    value: "COMPLETED",
-    label: "Completed",
+    value: "SOLD",
+    label: "Sold",
     dot: "bg-teal-500",
     chip: "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-900/20 dark:text-teal-400 dark:border-teal-800",
   },

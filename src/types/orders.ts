@@ -30,6 +30,8 @@ export type DeliveryStatus =
   | "FAILED"
   | "CANCELLED";
 
+export type PaymentStatus = "PAID" | "UNPAID" | "PARTIAL";
+
 export type CreateOrderPayload = {
   orderType: "POS" | "ONLINE" | "DELIVERY";
   paymentMethod?: "COD" | "ONLINE";
@@ -65,6 +67,22 @@ export interface Order {
     name?: string;
     role?: string;
     email?: string;
+  };
+  paymentDetails?: {
+    paymentStatus: "PAID" | "PARTIAL";
+    paymentMethod:
+      | "cash"
+      | "bkash"
+      | "nagad"
+      | "rocket"
+      | "upay"
+      | "bank_transfer"
+      | "visa"
+      | "master_card";
+
+    paidAmount: number;
+
+    dueAmount: number;
   };
   confirmedBy?: {
     name?: string;
@@ -140,6 +158,14 @@ export interface UpdateOrderRequest {
   deliveryStatus?: DeliveryStatus;
   seller?: any;
   discount?: number;
+  paymentDetails?: {
+    paymentStatus: string;
+    paymentMethod: string;
+
+    paidAmount: number;
+
+    dueAmount: number;
+  };
   billingDetails?: {
     fullName: string;
     email: string;

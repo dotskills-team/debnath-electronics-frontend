@@ -11,15 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { OrderStatusBadge } from "./OrderStatusBadge";
 import { CourierInfo } from "./CourierInfo";
-import {
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Clock,
-  Zap,
-  User2,
-} from "lucide-react";
+import { User, Mail, Phone, MapPin, Clock, Zap, User2 } from "lucide-react";
 import { format } from "date-fns";
 import type { Order } from "@/types/orders";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -43,11 +35,12 @@ export function OrderDetailsModal({
   });
 
   const courier = courierRes?.data;
-  const advanceAmount = order?.advanceDetails?.amount || 0;
   const totalAmount = order?.total || 0;
-  const dueAmount = Math.max(totalAmount - advanceAmount, 0);
+  const dueAmount = order?.paymentDetails?.dueAmount ?? 0;
   const paymentMethod =
-    order?.paymentMethod || order?.advanceDetails?.option || "Cash on Delivery";
+    order?.paymentMethod ||
+    order?.paymentDetails?.paymentMethod ||
+    "Cash on Delivery";
   // console.log(courier);
 
   if (!order) return null;
@@ -237,7 +230,7 @@ export function OrderDetailsModal({
                   <div className="flex justify-between">
                     <span>Paid Amount</span>
                     <span className="font-semibold text-green-600">
-                      ৳{advanceAmount.toFixed(2)}
+                      ৳{order?.paymentDetails?.paidAmount}
                     </span>
                   </div>
 
@@ -250,7 +243,7 @@ export function OrderDetailsModal({
                           : "font-semibold text-green-600"
                       }
                     >
-                      ৳{dueAmount.toFixed(2)}
+                      ৳{dueAmount}
                     </span>
                   </div>
 

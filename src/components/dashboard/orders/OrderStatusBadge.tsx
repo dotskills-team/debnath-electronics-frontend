@@ -1,7 +1,11 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import type { OrderStatus, DeliveryStatus } from "@/types/orders";
+import type {
+  OrderStatus,
+  DeliveryStatus,
+  PaymentStatus,
+} from "@/types/orders";
 import {
   CheckCircle,
   Clock,
@@ -14,11 +18,13 @@ import {
   FileCheck,
   ArrowRightCircle,
   PhoneMissed,
+  ClosedCaption,
+  Banknote,
 } from "lucide-react";
 
 interface OrderStatusBadgeProps {
-  status: OrderStatus | DeliveryStatus;
-  type?: "order" | "delivery";
+  status: OrderStatus | DeliveryStatus | PaymentStatus;
+  type?: "order" | "delivery" | "paymentStatus";
 }
 
 const orderStatusStyles: Record<string, string> = {
@@ -28,14 +34,21 @@ const orderStatusStyles: Record<string, string> = {
     "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800",
   COMPLETED:
     "bg-lime-100 text-lime-700 border-lime-200 dark:bg-lime-900/30 dark:text-lime-400 dark:border-lime-800",
-  SOLD:
-    "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800",
+  SOLD: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800",
   CANCELLED:
     "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800",
   PARTIAL:
     "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800",
   NO_RESPONSE:
     "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800",
+};
+const paymentStatusStyles: Record<string, string> = {
+  PAID: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800",
+
+  PARTIAL:
+    "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800",
+  UNPAID:
+    "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800",
 };
 
 const deliveryStatusStyles: Record<string, string> = {
@@ -81,6 +94,11 @@ const orderIcons: Record<string, React.ReactNode> = {
   PARTIAL: <AlertCircle className="h-3 w-3" />,
   NO_RESPONSE: <PhoneMissed className="h-3 w-3" />,
 };
+const paymentIcons: Record<string, React.ReactNode> = {
+  PAID: <CheckCircle className="h-3 w-3" />,
+  PARTIAL: <Banknote className="h-3 w-3" />,
+  UNPAID: <ClosedCaption className="h-3 w-3" />,
+};
 
 const deliveryIcons: Record<string, React.ReactNode> = {
   // Final states
@@ -123,12 +141,16 @@ export function OrderStatusBadge({
   const colorClass =
     type === "order"
       ? (orderStatusStyles[status] ?? fallbackStyle)
-      : (deliveryStatusStyles[status] ?? fallbackStyle);
+      : type === "paymentStatus"
+        ? (paymentStatusStyles[status] ?? fallbackStyle)
+        : (deliveryStatusStyles[status] ?? fallbackStyle);
 
   const icon =
     type === "order"
       ? (orderIcons[status] ?? null)
-      : (deliveryIcons[status] ?? null);
+      : type === "paymentStatus"
+        ? (paymentIcons[status] ?? null)
+        : (deliveryIcons[status] ?? null);
 
   const label = formatStatusLabel(status);
 

@@ -12,7 +12,7 @@ import {
 import { OrderStatusBadge } from "./OrderStatusBadge";
 import { OrderRowActions } from "./OrderRowActions";
 import type { Order } from "@/types/orders";
-import { AlertCircle, Clock, TrendingUp, Truck } from "lucide-react";
+import { AlertCircle, Clock, TrendingUp } from "lucide-react";
 import { useGetAllCouriersQuery } from "@/lib/hooks";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -116,8 +116,8 @@ export function OrderTable({
               "Customer",
               "Total",
               "Order Status",
+              "Payment Status",
               "Delivery Status",
-              "Courier",
               "Order Date",
               "Actions",
             ].map((h) => (
@@ -159,7 +159,9 @@ export function OrderTable({
                 <TableCell>
                   <span className="text-xs font-medium">
                     {order?.transactionId && (
-                      <span className="text-green-600 uppercase">{order?.advanceDetails?.option ?? "COD"}</span>
+                      <span className="text-green-600 uppercase">
+                        {order?.paymentDetails?.paymentMethod ?? "CASH"}
+                      </span>
                     )}
                   </span>
                 </TableCell>
@@ -181,6 +183,18 @@ export function OrderTable({
                   <OrderStatusBadge status={order.orderStatus} type="order" />
                 </TableCell>
                 <TableCell>
+                  {order?.paymentDetails?.paymentStatus ? (
+                    <div className="space-y-1">
+                      <OrderStatusBadge
+                        status={order?.paymentDetails?.paymentStatus}
+                        type="paymentStatus"
+                      />
+                    </div>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">-</span>
+                  )}
+                </TableCell>
+                <TableCell>
                   {order?.deliveryStatus ? (
                     <div className="space-y-1">
                       <OrderStatusBadge
@@ -196,35 +210,6 @@ export function OrderTable({
                         </p>
                       )}
                     </div>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">-</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {courier?._id ? (
-                    <div className="flex items-center gap-2">
-                      <div className="flex gap-2 items-center flex-col">
-                        <div className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/20 px-2.5 py-1.5 rounded-lg">
-                          <Truck
-                            size={14}
-                            className="text-blue-600 dark:text-blue-400"
-                          />
-                          <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
-                            {courier.courierName}
-                          </span>
-                        </div>
-                        {courier.trackingCode && (
-                          <span className="text-[8px] text-gray-500 dark:text-gray-400 font-mono">
-                            T.Code:{courier.trackingCode}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ) : order.orderStatus === "CONFIRMED" ? (
-                    <span className="inline-flex items-center gap-1.5 text-xs text-yellow-600 dark:text-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 px-2.5 py-1.5 rounded-lg font-medium">
-                      <span className="h-1.5 w-1.5 bg-yellow-500 rounded-full animate-pulse" />
-                      Not assigned...
-                    </span>
                   ) : (
                     <span className="text-xs text-muted-foreground">-</span>
                   )}

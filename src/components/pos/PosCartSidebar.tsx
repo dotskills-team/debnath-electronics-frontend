@@ -32,10 +32,10 @@ interface POSCartSidebarProps {
   }) => void;
   onCheckout: (
     customerData: CustomerData,
-    advanceDetails: AdvanceData,
+    paymentData: PaymentData,
     orderType: OrderType,
-    totalAmount: number,
-    discountAmount: number,
+    grandTotal: number,
+    discount: number,
   ) => void;
   isProcessing?: boolean;
 }
@@ -52,6 +52,15 @@ export interface CustomerData {
 export interface AdvanceData {
   option?: string;
   amount?: number;
+}
+
+export type PaymentStatus = "PAID" | "PARTIAL";
+
+export interface PaymentData {
+  paymentStatus: PaymentStatus;
+  paymentMethod: string;
+  paidAmount: number;
+  dueAmount: number;
 }
 
 const PayOption = [
@@ -93,10 +102,13 @@ export function POSCartSidebar({
     zipCode: "",
   });
 
-  const [advanceData, setAdvanceData] = useState<AdvanceData>({
-    option: undefined,
-    amount: 0,
-  });
+  const [paymentStatus, setPaymentStatus] = useState<"PAID" | "PARTIAL">(
+    "PAID",
+  );
+
+  const [paymentMethod, setPaymentMethod] = useState("cash");
+
+  const [paidInput, setPaidInput] = useState("");
 
   const subtotal = items.reduce(
     (sum, item) =>
@@ -104,15 +116,21 @@ export function POSCartSidebar({
     0,
   );
 
+  const discount = Math.min(Number(discountInput || 0), subtotal);
+
+  const grandTotal = Math.max(subtotal - discount, 0);
+
+  const paidAmount =
+    paymentStatus === "PAID"
+      ? grandTotal
+      : Math.min(Number(paidInput || 0), grandTotal);
+
+  const dueAmount = Math.max(grandTotal - paidAmount, 0);
+
   const rawDiscount = parseFloat(discountInput || "0");
   const discountAmount =
     !isNaN(rawDiscount) && rawDiscount >= 0 ? rawDiscount : 0;
   const discountCapped = Math.min(discountAmount, subtotal);
-
-  const advanceAmount = advanceData?.amount;
-  const total = subtotal - (advanceAmount ?? 0);
-
-  const totalAmount = Math.max(0, total - discountCapped);
 
   const handleDiscountChange = (val: string) => {
     setDiscountInput(val);
@@ -138,12 +156,17 @@ export function POSCartSidebar({
   const handleCheckout = () => {
     if (isFormValid && items.length > 0 && !discountError) {
       onCheckout(
-        customerData,
-        advanceData,
-        orderType,
-        totalAmount,
-        discountCapped,
-      );
+  customerData,
+  {
+    paymentStatus,
+    paymentMethod,
+    paidAmount,
+    dueAmount,
+  },
+  orderType,
+  grandTotal,
+  discount,
+);
     }
   };
 
@@ -203,22 +226,40 @@ export function POSCartSidebar({
             </span>
           </div>
 
-          {/* payment advance option */}
           <div className="mt-4 space-y-3">
+            <div className="space-y-2">
+              <p className="text-xs font-semibold">Payment Status</p>
+
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant={paymentStatus === "PAID" ? "default" : "outline"}
+                  onClick={() => setPaymentStatus("PAID")}
+                  className={`${paymentStatus === "PAID" ? "border-green-500 bg-green-50 text-green-700" : ""}`}
+                >
+                  Fully Paid
+                </Button>
+
+                <Button
+                  type="button"
+                  variant={paymentStatus === "PARTIAL" ? "default" : "outline"}
+                  onClick={() => setPaymentStatus("PARTIAL")}
+                  className={`${paymentStatus === "PARTIAL" ? "border-orange-500 bg-orange-50 text-orange-700" : ""}`}
+                >
+                  Partial
+                </Button>
+              </div>
+            </div>
+
             <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-               Payment Method
+              Payment Method
             </p>
 
             <div className="grid grid-cols-2 gap-3">
               {/* Payment Method */}
               <Select
-                value={advanceData.option || "none"}
-                onValueChange={(value) =>
-                  setAdvanceData((prev) => ({
-                    ...prev,
-                    option: value === "none" ? undefined : value,
-                  }))
-                }
+                value={paymentMethod || "none"}
+                onValueChange={(value) => setPaymentMethod(value)}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Payment method" />
@@ -234,22 +275,19 @@ export function POSCartSidebar({
                   ))}
                 </SelectContent>
               </Select>
-
-              {/* Advance Amount */}
-              <Input
-                type="number"
-                min="0"
-                placeholder="Advance amount"
-                value={advanceData.amount || ""}
-                onChange={(e) =>
-                  setAdvanceData({
-                    ...advanceData,
-                    amount: Number(e.target.value),
-                  })
-                }
-              />
             </div>
           </div>
+
+          {paymentStatus === "PARTIAL" && (
+            <Input
+              type="number"
+              min={0}
+              max={grandTotal}
+              placeholder="Paid amount"
+              value={paidInput}
+              onChange={(e) => setPaidInput(e.target.value)}
+            />
+          )}
 
           {discountCapped > 0 && (
             <div className="flex justify-between text-xs text-emerald-600 dark:text-emerald-400">
@@ -265,7 +303,7 @@ export function POSCartSidebar({
           <div className="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-1.5 text-sm font-bold">
             <span className="text-gray-900 dark:text-gray-50">Total</span>
             <span className="text-blue-600 dark:text-blue-400 tabular-nums">
-              ৳{totalAmount.toFixed(2)}
+              ৳{grandTotal.toFixed(2)}
             </span>
           </div>
         </div>
@@ -439,9 +477,9 @@ export function POSCartSidebar({
           ) : (
             <span className="flex items-center justify-center gap-2">
               Confirm & Place Order
-              {totalAmount > 0 && (
+              {grandTotal > 0 && (
                 <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs font-semibold tabular-nums">
-                  ৳{totalAmount.toFixed(2)}
+                  ৳{grandTotal.toFixed(2)}
                 </span>
               )}
             </span>

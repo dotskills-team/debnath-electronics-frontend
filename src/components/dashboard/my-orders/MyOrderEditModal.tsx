@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/incompatible-library */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -15,7 +16,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useUpdateOrderMutation } from "@/redux/features/orders/ordersApi";
 import { useGetAllProductsQuery } from "@/redux/features/product/product.api";
@@ -26,8 +26,6 @@ import {
   Mail,
   Phone,
   MapPin,
-  Truck,
-  StickyNote,
   Package,
   Search,
   X,
@@ -36,6 +34,9 @@ import {
   ShoppingCart,
   AlertCircle,
   Image as ImageIcon,
+  Tag,
+  Wallet,
+  Banknote,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Order } from "@/types/orders";
@@ -53,11 +54,17 @@ interface CartProduct {
 
 const schema = z.object({
   fullName: z.string().min(2, "Name is required"),
-  email: z.string().email("Enter a valid email"),
-  phone: z.string().min(7, "Enter a valid phone"),
-  address: z.string().min(3, "Address is required"),
-  shippingCost: z.coerce.number().min(0, "Must be 0 or more"),
-  note: z.string().optional(),
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  discount: z.coerce.number().min(0).default(0),
+
+  paymentDetails: z.object({
+    paymentMethod: z.string(),
+    paymentStatus: z.enum(["PAID", "PARTIAL"]),
+    paidAmount: z.coerce.number().default(0),
+    dueAmount: z.coerce.number().default(0),
+  }),
 });
 type FormData = z.infer<typeof schema>;
 
@@ -160,6 +167,8 @@ export function MyOrderEditModal({
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors, isDirty },
   } = useForm<FormData>({
     resolver: zodResolver(schema) as any,
@@ -168,8 +177,14 @@ export function MyOrderEditModal({
       email: "",
       phone: "",
       address: "",
-      shippingCost: 0,
-      note: "",
+      discount: 0,
+
+      paymentDetails: {
+        paymentMethod: "CASH",
+        paymentStatus: "PAID",
+        paidAmount: 0,
+        dueAmount: 0,
+      },
     },
   });
 
@@ -180,8 +195,17 @@ export function MyOrderEditModal({
         email: order.billingDetails?.email || "",
         phone: String(order.billingDetails?.phone || ""),
         address: order.billingDetails?.address || "",
-        shippingCost: (order as any).shippingCost ?? 0,
-        note: (order as any).note || "",
+        discount: order.discount ?? 0,
+
+        paymentDetails: {
+          paymentMethod: order.paymentDetails?.paymentMethod ?? "cash",
+
+          paymentStatus: order.paymentDetails?.paymentStatus ?? "PAID",
+
+          paidAmount: order.paymentDetails?.paidAmount ?? order.total,
+
+          dueAmount: order.paymentDetails?.dueAmount ?? 0,
+        },
       });
 
       // Map existing order products to cart
@@ -264,7 +288,28 @@ export function MyOrderEditModal({
     setCartProducts((prev) => prev.filter((p) => p.productId !== productId));
   };
 
-  const subtotal = cartProducts.reduce((s, p) => s + p.price * p.quantity, 0);
+  const subtotal = cartProducts.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
+
+  const discount = watch("discount") || 0;
+
+  const total = Math.max(subtotal - discount, 0);
+
+  const paymentStatus = watch("paymentDetails.paymentStatus");
+
+  const paidAmount = watch("paymentDetails.paidAmount");
+
+  useEffect(() => {
+    if (paymentStatus === "PAID") {
+      setValue("paymentDetails.paidAmount", total);
+
+      setValue("paymentDetails.dueAmount", 0);
+    } else {
+      setValue("paymentDetails.dueAmount", Math.max(total - paidAmount, 0));
+    }
+  }, [paymentStatus, paidAmount, total, setValue]);
   const alreadyInCart = (id: string) =>
     cartProducts.some((p) => p.productId === id);
 
@@ -280,12 +325,21 @@ export function MyOrderEditModal({
         data: {
           billingDetails: {
             fullName: formData.fullName,
-            email: formData.email,
-            phone: formData.phone,
-            address: formData.address,
+            email: formData.email ?? "",
+            phone: formData.phone ?? "",
+            address: formData.address ?? "",
           },
-          shippingCost: formData.shippingCost,
-          note: formData.note,
+          discount: formData.discount,
+
+          paymentDetails: {
+            paymentMethod: formData.paymentDetails.paymentMethod,
+
+            paymentStatus: formData.paymentDetails.paymentStatus,
+
+            paidAmount: formData.paymentDetails.paidAmount,
+
+            dueAmount: formData.paymentDetails.dueAmount,
+          },
           // Send updated products array to backend
           products: cartProducts.map((p) => ({
             product: p.productId,
@@ -610,7 +664,19 @@ export function MyOrderEditModal({
                         subtotal
                       </span>
                       <span className="text-base font-bold tabular-nums text-amber-600 dark:text-amber-400">
-                        ৳{subtotal.toFixed(2)}
+                        ৳{subtotal}
+                      </span>
+                      <span className="text-xs font-semibold text-amber-700/70 dark:text-amber-500/70">
+                        Discount
+                      </span>
+                      <span className="text-base font-bold tabular-nums text-amber-600 dark:text-amber-400">
+                        ৳{discount}
+                      </span>
+                      <span className="text-xs font-semibold text-amber-700/70 dark:text-amber-500/70">
+                        Total
+                      </span>
+                      <span className="text-base font-bold tabular-nums text-amber-600 dark:text-amber-400">
+                        ৳{total}
                       </span>
                     </div>
                   </div>
@@ -679,28 +745,6 @@ export function MyOrderEditModal({
                         disabled={isCourierAssigned}
                       />
                     </FormField>
-                    <FormField
-                      icon={Truck}
-                      label="Shipping Cost"
-                      htmlFor="shippingCost"
-                      error={errors.shippingCost?.message}
-                    >
-                      <div className="relative">
-                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400 select-none">
-                          ৳
-                        </span>
-                        <Input
-                          id="shippingCost"
-                          type="number"
-                          min="0"
-                          step="1"
-                          placeholder="0"
-                          className={cn(inputCls, "pl-7")}
-                          {...register("shippingCost")}
-                          disabled={isCourierAssigned}
-                        />
-                      </div>
-                    </FormField>
                   </div>
 
                   <FormField
@@ -719,22 +763,70 @@ export function MyOrderEditModal({
                     />
                   </FormField>
 
+                  <FormField icon={Tag} label="Discount" htmlFor="discount">
+                    <Input
+                      type="number"
+                      min={0}
+                      {...register("discount")}
+                      className={inputCls}
+                    />
+                  </FormField>
+
                   <FormField
-                    icon={StickyNote}
-                    label="Order Notes"
-                    htmlFor="note"
-                    error={errors.note?.message}
+                    icon={Wallet}
+                    label="Payment Method"
+                    htmlFor="paymentMethod"
                   >
-                    <Textarea
-                      id="note"
-                      placeholder="Notes about this order…"
-                      rows={2}
-                      className={cn(
-                        inputCls,
-                        "h-auto resize-none leading-relaxed",
-                      )}
-                      {...register("note")}
-                      disabled={isCourierAssigned}
+                    <select
+                      {...register("paymentDetails.paymentMethod")}
+                      className={inputCls}
+                    >
+                      <option value="cash">Cash</option>
+                      <option value="bkash">Bkash</option>
+                      <option value="nagad">Nagad</option>
+                      <option value="rocket">Rocket</option>
+                      <option value="upay">Upay</option>
+                      <option value="visa">Visa</option>
+                      <option value="master_card">Master Card</option>
+                      <option value="bank_transfer">Bank Transfer</option>
+                    </select>
+                  </FormField>
+
+                  <FormField
+                    icon={Wallet}
+                    label="Payment Status"
+                    htmlFor="paymentStatus"
+                  >
+                    <select
+                      {...register("paymentDetails.paymentStatus")}
+                      className={inputCls}
+                    >
+                      <option value="PAID">Paid</option>
+
+                      <option value="PARTIAL">Partial</option>
+                    </select>
+                  </FormField>
+                  <FormField
+                    icon={Banknote}
+                    label="Paid Amount"
+                    htmlFor="paidAmount"
+                  >
+                    <Input
+                      type="number"
+                      {...register("paymentDetails.paidAmount")}
+                      className={inputCls}
+                    />
+                  </FormField>
+
+                  <FormField
+                    icon={Banknote}
+                    label="Due Amount"
+                    htmlFor="dueAmount"
+                  >
+                    <Input
+                      disabled
+                      {...register("paymentDetails.dueAmount")}
+                      className={inputCls}
                     />
                   </FormField>
                 </div>

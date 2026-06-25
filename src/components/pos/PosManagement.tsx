@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { POSProductListCard } from "./PosProductListCard";
 import {
-  AdvanceData,
+  PaymentData,
   POSCartSidebar,
   type CustomerData,
 } from "./PosCartSidebar";
@@ -206,10 +206,10 @@ export default function POSManagement() {
 
   const handleCheckout = async (
     customerData: CustomerData,
-    advanceDetails: AdvanceData,
+    paymentData: PaymentData,
     orderType: OrderType,
-    totalAmount: number,
-    discountAmount: number,
+    grandTotal: number,
+    discount: number,
   ) => {
     try {
       if (!user?.data) {
@@ -244,8 +244,10 @@ export default function POSManagement() {
           schedule.type === "SCHEDULED"
             ? new Date(schedule.scheduledAt ?? "")
             : undefined,
-        total: totalAmount,
-        discount: discountAmount ?? 0,
+        total: grandTotal,
+
+        discount,
+        paymentDetails: paymentData,
         billingDetails: {
           fullName: customerData.name,
           email: customerData.email || "",
@@ -253,7 +255,6 @@ export default function POSManagement() {
           address: customerData.address || "",
         },
         seller: user?.data?._id,
-        advanceDetails,
       }).unwrap();
 
       if (res) {

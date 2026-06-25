@@ -228,16 +228,13 @@ export function MyOrderDetailModal({
             <div className="px-6 py-4 space-y-0">
               {/* ── Financial summary card ── */}
               <div className="mb-4 rounded-xl border border-amber-200/60 bg-amber-50/40 dark:border-amber-900/30 dark:bg-amber-900/10 p-4">
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   {[
                     {
                       label: "Subtotal",
                       value: `৳${order?.total?.toFixed(2) ?? "0.00"}`,
                     },
-                    {
-                      label: "Shipping",
-                      value: `৳${order.shippingCost?.toFixed(2) ?? "0.00"}`,
-                    },
+                   
                     {
                       label: "Discount",
                       value: `-৳${order.discount?.toFixed(2) ?? "0.00"}`,
@@ -330,7 +327,7 @@ export function MyOrderDetailModal({
                   value={
                     <span className="font-medium">
                       {(order as any).paymentMethod ||
-                        order?.advanceDetails?.option ||
+                        order?.paymentDetails?.paymentMethod ||
                         "Cash On Delivery"}
                     </span>
                   }
@@ -340,27 +337,25 @@ export function MyOrderDetailModal({
                   icon={Banknote}
                   label="Payment Status"
                   value={(() => {
-                    const advancePaid = order?.advanceDetails?.amount || 0;
-                    const total = order?.total || 0;
+                    const isPaid = order?.paymentDetails?.paidAmount || 0;
 
-                    const due = Math.max(total - advancePaid, 0);
+                    const due = order?.paymentDetails?.dueAmount || 0;
 
-                    const isAdvancePaid = advancePaid > 0;
 
                     return (
                       <div className="space-y-1">
                         <p>
                           Paid:{" "}
                           <span className="text-green-600">
-                            ৳{advancePaid.toFixed(2)}
+                            ৳{order?.paymentDetails?.paidAmount}
                           </span>
                         </p>
 
-                        {isAdvancePaid && (
+                        {due > 0 && (
                           <p>
                             Due:{" "}
                             <span className="text-red-600">
-                              ৳{due.toFixed(2)}
+                              ৳{due}
                             </span>
                           </p>
                         )}
@@ -368,14 +363,14 @@ export function MyOrderDetailModal({
                         <Badge
                           variant="outline"
                           className={
-                            !isAdvancePaid
+                            !isPaid
                               ? "bg-slate-100 text-slate-700"
                               : due > 0
                                 ? "bg-orange-100 text-orange-700"
                                 : "bg-green-100 text-green-700"
                           }
                         >
-                          {!isAdvancePaid
+                          {!isPaid
                             ? "Cash on Delivery"
                             : due > 0
                               ? "Partial Payment"
