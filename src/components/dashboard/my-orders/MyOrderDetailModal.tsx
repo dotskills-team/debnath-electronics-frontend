@@ -234,7 +234,7 @@ export function MyOrderDetailModal({
                       label: "Subtotal",
                       value: `৳${order?.total?.toFixed(2) ?? "0.00"}`,
                     },
-                   
+
                     {
                       label: "Discount",
                       value: `-৳${order.discount?.toFixed(2) ?? "0.00"}`,
@@ -341,7 +341,6 @@ export function MyOrderDetailModal({
 
                     const due = order?.paymentDetails?.dueAmount || 0;
 
-
                     return (
                       <div className="space-y-1">
                         <p>
@@ -353,10 +352,7 @@ export function MyOrderDetailModal({
 
                         {due > 0 && (
                           <p>
-                            Due:{" "}
-                            <span className="text-red-600">
-                              ৳{due}
-                            </span>
+                            Due: <span className="text-red-600">৳{due}</span>
                           </p>
                         )}
 
@@ -453,6 +449,14 @@ export function MyOrderDetailModal({
                             ৳{item.price?.toFixed(2)} × {item.quantity}
                           </p>
                         </div>
+                        {item?.product?.warrantyType && item?.product?.warrantyDay && (
+                          <div className="flex-1">
+                            <p className="font-medium">{item?.product?.warrantyType}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {item?.product?.warrantyDay}
+                            </p>
+                          </div>
+                        )}
                         <p className="shrink-0 text-sm font-bold tabular-nums text-amber-600 dark:text-amber-400">
                           ৳
                           {((item.price ?? 0) * (item.quantity ?? 1)).toFixed(

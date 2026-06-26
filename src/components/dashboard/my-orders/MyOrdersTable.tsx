@@ -262,7 +262,12 @@ export function MyOrdersTable({
                 <TableCell>
                   <span className="text-xs font-medium">
                     {order?.transactionId && (
-                      <span className="text-green-600 uppercase">{order?.paymentDetails?.paymentMethod ?? "CASH"}</span>
+                      <span className="text-green-600 uppercase">
+                        {order?.paymentDetails?.paymentMethod.replace(
+                          /_/g,
+                          " ",
+                        ) ?? "CASH"}
+                      </span>
                     )}
                   </span>
                 </TableCell>
@@ -304,7 +309,7 @@ export function MyOrdersTable({
 
                 {/* Payment Status */}
                 <TableCell>
-                 {order?.paymentDetails?.paymentStatus ? (
+                  {order?.paymentDetails?.paymentStatus ? (
                     <OrderStatusBadge
                       status={order?.paymentDetails?.paymentStatus}
                       type="paymentStatus"
@@ -395,18 +400,15 @@ export function MyOrdersTable({
                         View Details
                       </DropdownMenuItem>
 
-                     {
-                      !(isConfirmed || isDelivered) && (
+                      {!(isConfirmed || isDelivered) && (
                         <DropdownMenuItem
-                            className="gap-2 text-sm cursor-pointer text-amber-600 focus:text-amber-600 dark:text-amber-400"
-                            onClick={() => onOrderTiming(order)}
-                          >
-                            <TimerReset className="h-3.5 w-3.5" />
-                              Order Timing
+                          className="gap-2 text-sm cursor-pointer text-amber-600 focus:text-amber-600 dark:text-amber-400"
+                          onClick={() => onOrderTiming(order)}
+                        >
+                          <TimerReset className="h-3.5 w-3.5" />
+                          Order Timing
                         </DropdownMenuItem>
-                      )
-                     }
-                      
+                      )}
 
                       {canEditOrder && (
                         <DropdownMenuItem
@@ -424,7 +426,7 @@ export function MyOrdersTable({
                             setDeleteTarget?.(order);
                             setDeleteOpen?.(true);
                           }}
-                           className="gap-2 text-sm cursor-pointer text-rose-600 focus:text-rose-600 dark:text-rose-400"
+                          className="gap-2 text-sm cursor-pointer text-rose-600 focus:text-rose-600 dark:text-rose-400"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           Delete

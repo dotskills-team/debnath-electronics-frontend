@@ -160,7 +160,10 @@ export function OrderTable({
                   <span className="text-xs font-medium">
                     {order?.transactionId && (
                       <span className="text-green-600 uppercase">
-                        {order?.paymentDetails?.paymentMethod ?? "CASH"}
+                        {order?.paymentDetails?.paymentMethod.replace(
+                          /_/g,
+                          " ",
+                        ) ?? "CASH"}
                       </span>
                     )}
                   </span>

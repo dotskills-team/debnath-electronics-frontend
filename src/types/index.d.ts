@@ -247,9 +247,7 @@ export interface IProduct {
 
   warrantyType?: "WARRANTY" | "GUARANTEE";
 
-  warrantyStartDate?: Date;
-
-  warrantyEndDate?: Date;
+  warrantyDay?: string;
   brand: {
     _id: string;
     title: string;

@@ -188,6 +188,14 @@ export function OrderDetailsModal({
                         Qty: {product.quantity} × ৳{product?.price?.toFixed(2)}
                       </p>
                     </div>
+                    {product?.product?.warrantyEnabled && (
+                      <div className="flex-1">
+                        <p className="font-medium">{product?.product?.warrantyType}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {product?.product?.warrantyDay}
+                        </p>
+                      </div>
+                    )}
                     <p className="font-medium">
                       ৳{(product.quantity * product.price)?.toFixed(2)}
                     </p>

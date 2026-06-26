@@ -128,6 +128,7 @@ const formatStatusLabel = (status: string) => {
     PICKED_UP: "PICKED UP",
     IN_REVIEW: "IN REVIEW",
     NOT_SHIPPED: "NOT SHIPPED",
+    MASTER_CARD: "MASTER CARD",
     NO_RESPONSE: "NO RESPONSE",
   };
 

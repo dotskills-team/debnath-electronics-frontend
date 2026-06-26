@@ -1,11 +1,16 @@
 import { IProduct } from ".";
 
-export type OrderType = 'PICKUP' | 'DELIVERY';
+export type OrderType = "PICKUP" | "DELIVERY";
 
 export interface POSCartItem {
   product: IProduct;
   quantity: number;
   selectedExtras?: string[];
+  warrantyEnabled?: boolean;
+
+  warrantyType?: "WARRANTY" | "GUARANTEE";
+
+  warrantyDay?: string;
 }
 
 export interface POSOrder {
@@ -24,7 +29,7 @@ export interface POSOrder {
   customerCity?: string;
   customerZipCode?: string;
   notes?: string;
-  status: 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+  status: "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
   createdBy: string;
   createdAt?: Date;
   updatedAt?: Date;

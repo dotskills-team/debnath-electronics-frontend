@@ -22,7 +22,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 
-import { Upload, X, Loader2, RefreshCw, CalendarIcon } from "lucide-react";
+import { Upload, X, Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { uploadMultipleToCloudinary } from "@/utils/cloudinary";
 
@@ -34,13 +34,6 @@ import { IBrand, ICategory } from "@/types";
 import BreadCrumbPage from "@/components/shared/BreadCrumbPage";
 import { useGetMeQuery } from "@/redux/features/user/user.api";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
 
 // 🔥 Editor (No SSR)
 const ProductEditor = dynamic(
@@ -93,9 +86,7 @@ const schema = z.object({
 
   warrantyType: z.string().optional(),
 
-  warrantyStartDate: z.date().optional(),
-
-  warrantyEndDate: z.date().optional(),
+  warrantyDay: z.string().optional(),
 
   images: z.array(z.instanceof(File)).optional(),
 
@@ -194,8 +185,7 @@ export default function CreateProduct() {
       if (data.warrantyEnabled) {
         payloadData.warrantyEnabled = true;
         payloadData.warrantyType = data.warrantyType;
-        payloadData.warrantyStartDate = data.warrantyStartDate;
-        payloadData.warrantyEndDate = data.warrantyEndDate;
+        payloadData.warrantyDay = data.warrantyDay;
       }
 
       if (role !== "MANAGER") {
@@ -387,68 +377,17 @@ export default function CreateProduct() {
                     />
 
                     <div className="grid md:grid-cols-2 gap-4">
-                      {/* Start Date */}
-                      <Controller
-                        control={control}
-                        name="warrantyStartDate"
-                        render={({ field }) => (
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                className="justify-start w-full"
-                              >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-
-                                {field.value
-                                  ? format(field.value, "PPP")
-                                  : "Warranty Start Date"}
-                              </Button>
-                            </PopoverTrigger>
-
-                            <PopoverContent className="w-auto p-0">
-                              <Calendar
-                                mode="single"
-                                selected={field.value}
-                                onSelect={field.onChange}
-                                initialFocus
-                              />
-                            </PopoverContent>
-                          </Popover>
-                        )}
-                      />
-                      {/* End Date */}
-                      <Controller
-                        control={control}
-                        name="warrantyEndDate"
-                        render={({ field }) => (
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                className="justify-start w-full"
-                              >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-
-                                {field.value
-                                  ? format(field.value, "PPP")
-                                  : "Warranty End Date"}
-                              </Button>
-                            </PopoverTrigger>
-
-                            <PopoverContent className="w-auto p-0">
-                              <Calendar
-                                mode="single"
-                                selected={field.value}
-                                onSelect={field.onChange}
-                                initialFocus
-                              />
-                            </PopoverContent>
-                          </Popover>
-                        )}
-                      />
+                      <div className="space-y-2">
+                        <Label>Warranty/Guarantee Duration</Label>
+                        <Input
+                          type="text"
+                          onWheel={(e) => e.preventDefault()}
+                          {...register("warrantyDay")}
+                        />
+                        <p className="text-red-500 text-xs">
+                          {errors.warrantyDay?.message}
+                        </p>
+                      </div>
                     </div>
                   </>
                 )}

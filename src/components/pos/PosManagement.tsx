@@ -137,7 +137,23 @@ export default function POSManagement() {
         );
       }
 
-      return [...prev, { product, quantity: 1, selectedExtras: [] }];
+      const warrantyType =
+        product?.warrantyType === "WARRANTY" ||
+        product?.warrantyType === "GUARANTEE"
+          ? product.warrantyType
+          : undefined;
+
+      return [
+        ...prev,
+        {
+          product,
+          quantity: 1,
+          selectedExtras: [],
+          warrantyType,
+          warrantyDay: product?.warrantyDay || "",
+          warrantyEnabled: Boolean(product?.warrantyEnabled),
+        },
+      ];
     });
 
     toast.success(`${product.title} added to cart!`);
@@ -238,6 +254,9 @@ export default function POSManagement() {
           product: item.product._id ?? "",
           title: item.product?.title || "Unknown Product",
           quantity: item.quantity,
+          warrantyType: item?.warrantyType || "",
+          warrantyDay: item?.warrantyDay || "",
+          warrantyEnabled: item?.warrantyEnabled || false,
         })),
         scheduleType: schedule.type,
         scheduledAt:

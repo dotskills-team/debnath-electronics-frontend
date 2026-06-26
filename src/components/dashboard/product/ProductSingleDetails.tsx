@@ -633,6 +633,7 @@ export default function ProductSingleDetails() {
                     ["Size", product?.size],
                     ["Total Added Stock", product?.totalAddedStock],
                     ["Available Stock", product?.availableStock],
+                    [`${product?.warrantyType}`, product?.warrantyDay],
                     ["Total Sold", product?.totalSold],
                   ].map(([label, value]) => (
                     <TableRow key={label as string}>
