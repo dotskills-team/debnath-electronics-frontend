@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,32 +10,34 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { toast } from "sonner"
-import { useRouter } from "next/navigation"
-import { LogOut, User, User2 } from "lucide-react"
-import { useGetMeQuery } from "@/redux/features/user/user.api"
-import { ProfileAvatar } from "./ProfileAvatar"
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { KeyRound, LogOut, User, User2 } from "lucide-react";
+import { useGetMeQuery } from "@/redux/features/user/user.api";
+import { ProfileAvatar } from "./ProfileAvatar";
 import React from "react";
 import { IUser } from "@/types";
 import UserDetailsModal from "@/components/dashboard/user/UserDetailsModal";
-import { useUser } from "@/context/UserContext"
+import { useUser } from "@/context/UserContext";
+import ChangeUserPasswordModal from "./user/ChangeUserPasswordModal";
 
 export function ProfileDropdown() {
   const [selectedUser, setSelectedUser] = React.useState<IUser | null>(null);
   const [openViewModal, setOpenViewModal] = React.useState(false);
+  const [openPasswordModal, setOpenPasswordModal] = React.useState(false);
+
   const { logout } = useUser();
 
-  const { data } = useGetMeQuery(undefined)
+  const { data } = useGetMeQuery(undefined);
 
-  const router = useRouter()
+  const router = useRouter();
 
   const handleLogout = async () => {
     await logout();
-    toast.success("Logout successful")
-    router.push("/login")
-
-  }
+    toast.success("Logout successful");
+    router.push("/login");
+  };
 
   // console.log("user data in dropdown ", data)
 
@@ -65,7 +67,11 @@ export function ProfileDropdown() {
             onClick={() => {
               const role = data?.data?.role;
 
-              if (role === "ADMIN" || role === "MANAGER" || role === "MODERATOR") {
+              if (
+                role === "ADMIN" ||
+                role === "MANAGER" ||
+                role === "MODERATOR"
+              ) {
                 setSelectedUser(data?.data || null);
                 setOpenViewModal(true);
               } else {
@@ -87,12 +93,23 @@ export function ProfileDropdown() {
           {data?.data?.role}
         </DropdownMenuItem>
 
+        <DropdownMenuItem onClick={() => setOpenPasswordModal(true)}>
+          <KeyRound className="h-4 w-4" />
+          Change Password
+        </DropdownMenuItem>
+
         <DropdownMenuItem onClick={handleLogout}>
           <LogOut />
           Log out
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>
+
+      <ChangeUserPasswordModal
+        user={data?.data}
+        open={openPasswordModal}
+        onOpenChange={setOpenPasswordModal}
+      />
 
       {selectedUser && (
         <UserDetailsModal
@@ -102,5 +119,5 @@ export function ProfileDropdown() {
         />
       )}
     </DropdownMenu>
-  )
+  );
 }

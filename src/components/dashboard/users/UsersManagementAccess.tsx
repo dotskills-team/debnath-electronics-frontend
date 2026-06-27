@@ -837,7 +837,7 @@ export function ChangePasswordModal({
           </div>
         </form>
 
-        <DialogFooter className="border-t border-gray-100 px-6 py-4 dark:border-gray-800 gap-2">
+        <DialogFooter className="border-t pb-1 border-gray-100 px-6 py-4 dark:border-gray-800 gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -851,7 +851,7 @@ export function ChangePasswordModal({
             type="submit"
             form="change-password-form"
             disabled={isLoading}
-            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 transition-all duration-200 active:scale-95 disabled:opacity-50"
+            className="hover:cursor-pointer mb-1 inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 transition-all duration-200 active:scale-95 disabled:opacity-50"
           >
             {isLoading ? (
               <span className="flex items-center gap-2">

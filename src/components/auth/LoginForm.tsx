@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
 import { useState } from 'react'
@@ -205,13 +206,13 @@ export default function LoginForm({ onSwitchToForgot }: LoginPageProps) {
                 >
                   Password
                 </label>
-                <button
+                {/* <button
                   type="button"
                   onClick={() => onSwitchToForgot?.()}
                   className="text-[11px] text-[#8a9090] hover:text-[#c9a84c] transition-colors"
                 >
                   Forgot password?
-                </button>
+                </button> */}
               </div>
               <div className="relative">
                 <input
@@ -254,7 +255,7 @@ export default function LoginForm({ onSwitchToForgot }: LoginPageProps) {
               className="
                 relative w-full h-11 mt-2 rounded-md overflow-hidden
                 bg-[#c9a84c] hover:bg-[#d4b86a] active:bg-[#b8973e]
-                text-[#0f1415] text-sm font-bold tracking-[0.15em] uppercase
+                text-white hover:cursor-pointer text-sm font-bold tracking-[0.15em] uppercase
                 transition-all duration-200
                 disabled:opacity-60 disabled:cursor-not-allowed
                 flex items-center justify-center gap-2
