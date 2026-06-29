@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Open_Sans  } from "next/font/google";
+import { Geist, Geist_Mono, Open_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { UserProvider } from "@/context/UserContext";
+import ReduxProvider from "@/providers/ReduxProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,15 +18,15 @@ const geistMono = Geist_Mono({
 const openSans = Open_Sans({
   variable: "--font-open-sans",
   subsets: ["latin"],
-})
+});
 
 export const metadata: Metadata = {
-   title: "Debnath Electronics | Premium Skincare & Beauty Products",
+  title: "Debnath Electronics | Premium Skincare & Beauty Products",
 
   description:
     "Discover premium skincare and beauty products from Debnath Electronics. Nourish your skin with carefully selected beauty essentials and enjoy fast delivery across Bangladesh.",
 
-   keywords: [
+  keywords: [
     "Debnath Electronics",
     "skincare products",
     "beauty products Bangladesh",
@@ -50,7 +51,7 @@ export const metadata: Metadata = {
     siteName: "Debnath Electronics",
     images: [
       {
-        url: "/favicon.ico", 
+        url: "/favicon.ico",
         width: 1200,
         height: 630,
         alt: "Debnath Electronics - E-commerce Platform",
@@ -62,7 +63,7 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-     title: "Debnath Electronics | Premium Skincare & Beauty Products",
+    title: "Debnath Electronics | Premium Skincare & Beauty Products",
     description:
       "Discover premium skincare and beauty products from Debnath Electronics. Nourish your skin with carefully selected beauty essentials and enjoy fast delivery across Bangladesh.",
     images: ["/favicon.ico"],
@@ -70,7 +71,7 @@ export const metadata: Metadata = {
 
   icons: {
     icon: "/favicon.ico",
-    shortcut:"/favicon.ico",
+    shortcut: "/favicon.ico",
     apple: "/favicon.ico",
   },
 
@@ -95,17 +96,15 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${openSans.variable}  h-full antialiased`}
-
     >
       <body className="min-h-full flex flex-col">
-        <UserProvider>
-
-        {children}
-        <Toaster richColors={true} position="top-center"/>
-        </UserProvider>
-
+        <ReduxProvider>
+          <UserProvider>
+            {children}
+            <Toaster richColors={true} position="top-center" />
+          </UserProvider>
+        </ReduxProvider>
       </body>
-
     </html>
   );
 }

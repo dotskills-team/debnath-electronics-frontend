@@ -22,6 +22,7 @@ export const baseApi = createApi({
     "RETURN",
     "CATEGORY",
     "PRODUCTS",
+    "SUBSCRIPTION_RENEW",
     "PRODUCT",
     "ORDERS",
     "ORDER",
