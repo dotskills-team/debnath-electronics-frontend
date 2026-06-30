@@ -5,6 +5,7 @@ export type PageAccess =
   | "plans"
   | "my-orders"
   | "user-management"
+  | "subscription-renew"
   | "purchase-products"
   | "staff-management"
   | "product-management"
@@ -35,7 +36,7 @@ export interface UserPermissions {
 
 // Default page access for each role
 export const defaultRolePermissions: Record<UserRole, PageAccess[]> = {
-  SUPER_ADMIN: ["superadmin", "users", "plans"],
+  SUPER_ADMIN: ["superadmin", "users", "subscription-renew", "plans"],
   ADMIN: [
     "dashboard",
     "product-management",
@@ -81,6 +82,7 @@ export const availablePages: { id: PageAccess; label: string; icon: string }[] =
     { id: "product-management", label: "Products", icon: "🛍️" },
     { id: "category-management", label: "Categories", icon: "📁" },
     { id: "brand-management", label: "Brands", icon: "🏷️" },
+    { id: "subscription-renew", label: "Subscription Renew", icon: "📋" },
     { id: "coupons", label: "Coupons", icon: "🎁" },
     { id: "purchase-products", label: "Purchase Products", icon: "🛒" },
     { id: "returns", label: "Returns", icon: "📦" },
@@ -102,6 +104,7 @@ export const superadminAvailablePages: {
 }[] = [
   { id: "superadmin", label: "Overview", icon: "📊" },
   { id: "users", label: "Users", icon: "👤" },
+  { id: "subscription-renew", label: "Renew", icon: "👤" },
   { id: "plans", label: "Plans", icon: "🛍️" },
 ];
 
