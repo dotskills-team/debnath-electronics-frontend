@@ -1,15 +1,9 @@
 import { IUser } from ".";
+import { IPlan } from "./plan";
 
-export type RenewStatus =
-  | "PENDING"
-  | "APPROVED"
-  | "REJECTED";
+export type RenewStatus = "PENDING" | "APPROVED" | "REJECTED";
 
-export type PaymentMethod =
-  | "BKASH"
-  | "NAGAD"
-  | "ROCKET"
-  | "BANK";
+export type PaymentMethod = "BKASH" | "NAGAD" | "ROCKET" | "BANK";
 
 export interface ISubscriptionRenew {
   _id: string;
@@ -23,6 +17,7 @@ export interface ISubscriptionRenew {
   paymentScreenshot: string;
 
   note?: string;
+  email?: string;
 
   status: RenewStatus;
 
@@ -30,7 +25,10 @@ export interface ISubscriptionRenew {
 
   approvedAt?: string;
 
+  approvedPlan?: IPlan;
+
   rejectionReason?: string;
+  approvedPrice?: number;
 
   createdAt: string;
 

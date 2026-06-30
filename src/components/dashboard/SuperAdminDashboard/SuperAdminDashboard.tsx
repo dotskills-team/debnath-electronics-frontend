@@ -359,7 +359,7 @@ export function SuperAdminDashboard() {
           title="Expiring Soon"
           icon={Clock}
           accentClass="bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400"
-          href="/staff/dashboard/superadmin/subscriptions"
+          href="/staff/dashboard/superadmin/subscription-renew"
         >
           <ExpiringSoon />
         </DashboardPanel>
