@@ -56,6 +56,17 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
   const sidebarItems = buildSidebarItems(userRole, customPermissions);
 
+  const whatsappNumber = "8801568149801";
+  const message = encodeURIComponent(
+    `আসসালামু আলাইকুম,
+
+আমি Debnath Electronics সফটওয়্যারের একজন ব্যবহারকারী।
+
+আমার সাবস্ক্রিপশন সম্পর্কিত সহায়তা প্রয়োজন। অনুগ্রহ করে আমাকে সহযোগিতা করবেন।
+
+ধন্যবাদ।`,
+  );
+
   return (
     <Sidebar {...props}>
       <SidebarHeader className="ml-5">
@@ -129,6 +140,31 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarRail />
+
+      <div className="mt-auto border-t border-border px-4 py-4 text-center">
+        <p className="text-[11px] text-muted-foreground">
+          Powered by{" "}
+          <Link
+            href="https://dotskillsbd.com"
+            target="_blank"
+            className="font-semibold text-amber-600 hover:text-amber-700 transition-colors"
+          >
+            DotSkills
+          </Link>
+        </p>
+
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          📱Support:
+          <Link
+            href={`https://wa.me/${whatsappNumber}?text=${message}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex items-center gap-2 text-xs font-medium text-amber-600 hover:text-amber-700 transition-colors"
+          >
+            +8801568149801
+          </Link>
+        </p>
+      </div>
     </Sidebar>
   );
 }
