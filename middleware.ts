@@ -27,10 +27,7 @@ const roleRoutes: Record<string, UserRole[]> = {
   ],
 
   "/staff/dashboard/product-management": [UserRole.ADMIN, UserRole.MANAGER],
-  "/staff/dashboard/category-management": [
-    UserRole.ADMIN,
-    UserRole.MANAGER,
-  ],
+  "/staff/dashboard/category-management": [UserRole.ADMIN, UserRole.MANAGER],
   "/staff/dashboard/admin/brand-management": [
     UserRole.ADMIN,
     UserRole.MANAGER,
@@ -166,13 +163,21 @@ export async function middleware(req: NextRequest) {
     const payload: any = await verifyToken(accessToken);
 
     if (!payload) {
-      return NextResponse.redirect(new URL("/login", req.url));
+      const response = NextResponse.redirect(new URL("/login", req.url));
+
+      response.cookies.delete("accessToken");
+
+      return response;
     }
 
     const role = payload.role || payload.user?.role;
 
     if (!role) {
-      return NextResponse.redirect(new URL("/login", req.url));
+      const response = NextResponse.redirect(new URL("/login", req.url));
+
+      response.cookies.delete("accessToken");
+
+      return response;
     }
 
     const sortedRoutes = Object.keys(roleRoutes).sort(

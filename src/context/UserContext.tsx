@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { getCurrentUser } from "@/utils/getCurrentUser";
 import { logoutUser } from "@/utils/logoutUser";
+import { usePathname, useRouter } from "next/navigation";
 
 type User = {
   _id: string;
@@ -23,25 +23,44 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const router = useRouter();
+  const pathname = usePathname();
+
   useEffect(() => {
     const hydrateUser = async () => {
-      const currentUser = await getCurrentUser();
-      setUser(currentUser);
-      setLoading(false);
+      try {
+        const currentUser = await getCurrentUser();
+
+        if (!currentUser && pathname.startsWith("/staff/dashboard")) {
+          await logoutUser();
+          router.replace("/login");
+          return;
+        }
+
+        setUser(currentUser);
+      } finally {
+        setLoading(false);
+      }
     };
+
     hydrateUser();
-  }, []);
+  }, [pathname, router]);
 
+  const login = (userData: User) => setUser(userData);
 
-  const login = (userData: any) => setUser(userData);
   const logout = async () => {
     await logoutUser();
     setUser(null);
+    router.replace("/login");
   };
+
+  if (loading) {
+    return null;
+  }
 
   return (
     <UserContext.Provider value={{ user, login, logout }}>
-      {!loading && children}
+      {children}
     </UserContext.Provider>
   );
 }

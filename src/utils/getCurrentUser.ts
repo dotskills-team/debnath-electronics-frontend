@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
@@ -12,7 +11,10 @@ export const getCurrentUser = async () => {
   if (!accessToken) return null;
 
   try {
-    const decoded: any = jwt.decode(accessToken);
+    const decoded = jwt.verify(
+      accessToken,
+      process.env.JWT_ACCESS_SECRET!
+    ) as any;
 
     return {
       _id: decoded.userId,
@@ -21,7 +23,7 @@ export const getCurrentUser = async () => {
       subscriptionAccess: decoded.subscriptionAccess,
       subscriptionExpireAt: decoded.subscriptionExpireAt,
     };
-  } catch (error) {
+  } catch {
     return null;
   }
 };
