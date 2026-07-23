@@ -375,7 +375,7 @@ export function SuperAdminDashboard() {
       </div>
 
       {/* Quick links */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {[
           {
             href: "/staff/dashboard/superadmin/users",
@@ -383,12 +383,12 @@ export function SuperAdminDashboard() {
             icon: Users,
             color: "amber",
           },
-          {
-            href: "/staff/dashboard/superadmin/subscriptions",
-            label: "Manage Subscriptions",
-            icon: CreditCard,
-            color: "emerald",
-          },
+          // {
+          //   href: "/staff/dashboard/superadmin/subscriptions",
+          //   label: "Manage Subscriptions",
+          //   icon: CreditCard,
+          //   color: "emerald",
+          // },
           {
             href: "/staff/dashboard/superadmin/plans",
             label: "Manage Plans",
