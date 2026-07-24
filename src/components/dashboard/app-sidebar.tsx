@@ -6,6 +6,7 @@ import * as React from "react";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -83,8 +84,8 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         </Link>
       </SidebarHeader>
 
-      <SidebarContent>
-        <ScrollArea className="max-h-[90vh] pr-2">
+      <SidebarContent className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full">
           <SidebarGroup>
             <SidebarGroupLabel className="text-amber-700 dark:text-amber-400 font-semibold">
               {userRole === "ADMIN" ? "Admin Panel" : `${userRole} Access`}
@@ -94,14 +95,12 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
               <SidebarMenu>
                 {sidebarItems.map((item, idx) => {
                   const isActive = pathname === item.href;
+
                   return (
-                    <SidebarMenuItem
-                      key={idx}
-                      className="transition-all duration-200"
-                    >
+                    <SidebarMenuItem key={idx}>
                       <SidebarMenuButton
                         asChild
-                        className={`hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors ${
+                        className={`hover:bg-amber-50 dark:hover:bg-amber-950/30 ${
                           isActive
                             ? "bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-100 font-semibold"
                             : "text-muted-foreground hover:text-foreground"
@@ -109,10 +108,9 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                       >
                         {item.href === "#logout" ? (
                           <button
+                            type="button"
                             onClick={handleLinkClick}
                             className="w-full flex items-center gap-2"
-                            type="button"
-                            title={item.description}
                           >
                             {item.icon}
                             <span>{item.title}</span>
@@ -122,7 +120,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                             href={item.href}
                             onClick={handleLinkClick}
                             className="w-full flex items-center gap-2"
-                            title={item.description}
                           >
                             {item.icon}
                             <span>{item.title}</span>
@@ -135,36 +132,35 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
+
           <ScrollBar orientation="vertical" />
         </ScrollArea>
       </SidebarContent>
 
-      <SidebarRail />
-
-      <div className="mt-auto border-t border-border px-4 py-4 text-center">
+      <SidebarFooter className="border-t bg-background px-4 py-4 text-center">
         <p className="text-[11px] text-muted-foreground">
           Powered by{" "}
           <Link
             href="https://dotskillsbd.com"
             target="_blank"
-            className="font-semibold text-amber-600 hover:text-amber-700 transition-colors"
+            className="font-semibold text-amber-600 hover:text-amber-700"
           >
             DotSkills
           </Link>
         </p>
 
         <p className="mt-1 text-[11px] text-muted-foreground">
-          📱Support:
+          📱 Support:{" "}
           <Link
             href={`https://wa.me/${whatsappNumber}?text=${message}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-3 inline-flex items-center gap-2 text-xs font-medium text-amber-600 hover:text-amber-700 transition-colors"
+            className="text-xs font-medium text-amber-600 hover:text-amber-700"
           >
-            +8801568149801
+            +8801717-391532
           </Link>
         </p>
-      </div>
+      </SidebarFooter>
     </Sidebar>
   );
 }
