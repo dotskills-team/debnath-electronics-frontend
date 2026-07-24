@@ -57,7 +57,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
   const sidebarItems = buildSidebarItems(userRole, customPermissions);
 
-  const whatsappNumber = "8801568149801";
+  const whatsappNumber = "8801872122544";
   const message = encodeURIComponent(
     `আসসালামু আলাইকুম,
 
@@ -137,29 +137,50 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         </ScrollArea>
       </SidebarContent>
 
-      <SidebarFooter className="border-t bg-background px-4 py-4 text-center">
-        <p className="text-[11px] text-muted-foreground">
-          Powered by{" "}
-          <Link
-            href="https://dotskillsbd.com"
-            target="_blank"
-            className="font-semibold text-amber-600 hover:text-amber-700"
-          >
-            DotSkills
-          </Link>
-        </p>
+      <SidebarFooter className="border-t bg-background px-4 py-4">
+        <div className="space-y-3 text-center">
+          <div>
+            <p className="text-[11px] text-muted-foreground">
+              Powered by{" "}
+              <Link
+                href="https://dotskillsbd.com"
+                target="_blank"
+                className="font-semibold text-amber-600 transition-colors hover:text-amber-700"
+              >
+                DotSkills
+              </Link>
+            </p>
+          </div>
 
-        <p className="mt-1 text-[11px] text-muted-foreground">
-          📱 Support:{" "}
-          <Link
-            href={`https://wa.me/${whatsappNumber}?text=${message}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs font-medium text-amber-600 hover:text-amber-700"
-          >
-            +8801717-391532
-          </Link>
-        </p>
+          <div className="rounded-lg border border-amber-200/70 bg-amber-50/70 p-3 dark:border-amber-900 dark:bg-amber-950/20">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">
+              📱 Support
+            </p>
+
+            <Link
+              href={`https://wa.me/${whatsappNumber}?text=${message}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 block text-sm font-semibold text-foreground transition-colors hover:text-amber-600"
+            >
+              +8801872-122544
+            </Link>
+
+            <div className="my-2 h-px bg-border" />
+
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-pink-600">
+              💳 BKash Personal
+            </p>
+
+            <p className="mt-1 text-base font-bold tracking-wider text-pink-600">
+              01872-122544
+            </p>
+
+            <p className="mt-1 text-[10px] text-muted-foreground">
+              Send subscription payments to this bKash Personal number.
+            </p>
+          </div>
+        </div>
       </SidebarFooter>
     </Sidebar>
   );
