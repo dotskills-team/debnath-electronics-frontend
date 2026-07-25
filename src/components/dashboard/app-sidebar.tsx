@@ -57,7 +57,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
   const sidebarItems = buildSidebarItems(userRole, customPermissions);
 
-  const whatsappNumber = "8801872122544";
+  const whatsappNumber = "8801568149801";
   const message = encodeURIComponent(
     `আসসালামু আলাইকুম,
 
@@ -163,7 +163,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
               rel="noopener noreferrer"
               className="mt-1 block text-sm font-semibold text-foreground transition-colors hover:text-amber-600"
             >
-              +8801872-122544
+              +8801568149801
             </Link>
 
             <div className="my-2 h-px bg-border" />
