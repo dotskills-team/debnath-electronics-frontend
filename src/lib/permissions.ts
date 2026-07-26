@@ -82,7 +82,7 @@ export const availablePages: { id: PageAccess; label: string; icon: string }[] =
     { id: "product-management", label: "Products", icon: "🛍️" },
     { id: "category-management", label: "Categories", icon: "📁" },
     { id: "brand-management", label: "Brands", icon: "🏷️" },
-    { id: "subscription-renew", label: "Subscription Renew", icon: "📋" },
+    // { id: "subscription-renew", label: "Subscription Renew", icon: "📋" },
     { id: "coupons", label: "Coupons", icon: "🎁" },
     { id: "purchase-products", label: "Purchase Products", icon: "🛒" },
     { id: "returns", label: "Returns", icon: "📦" },
